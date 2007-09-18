@@ -1,0 +1,18 @@
+*Title: eZ Find 1.0 beta1 released
+
+We have now released eZ Find 1.0 beta1. eZ Find is a search extension for eZ Publish.
+eZ Find provides several new features and improvements over the existing eZ Publish search feature.
+
+eZ Find's main features include:
+
+    * Relevance ranking, incorporating the data structure of content classes
+    * Native support for eZ Publish access rights in order to display appropriate search results
+    * Keyword highlighting
+    * Language-specific search results based on the siteaccess used
+    * Ability to search public siteaccesses of multiple eZ Publish installations
+    * Ability to search several million eZ Publish objects
+    * Integration into the Administration Interface in addition to the public siteaccesses
+
+The extension requires JRE (Java Runtime Environment) 5.0 or later.
+
+eZ Find 1.0 beta1 is available for download here.
