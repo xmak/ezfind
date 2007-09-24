@@ -316,7 +316,7 @@
        different names (and different init parameters)
     -->
     
-   <requestHandler name="ezpublish" class="solr.DisMaxRequestHandler" >
+   <requestHandler name="ezpublish" class="solr.StandardRequestHandler" >
 	  <lst name="defaults">
 		  <str name="echoParams">explicit</str>
 		  <float name="tie">0.01</float>

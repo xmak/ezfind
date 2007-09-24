@@ -40,9 +40,9 @@ class eZSolr
         eZDebug::createAccumulatorGroup( 'solr', 'Solr search plugin' );
         $this->SolrINI = eZINI::instance( 'solr.ini' );
         $this->FindINI = eZINI::instance( 'ezfind.ini' );
-        $this->SearchServerURI = $this->SolrINI->variable( 'SolrBase', 'SearchServerURI' );
+        $this->SearchServerURI = $this->SolrINI->variable( 'SolrBaseSettings', 'SearchServerURI' );
         $this->Solr = new eZSolrBase( $this->SearchServerURI );
-        $realm = $this->SolrINI->variable( 'SolrBase', 'Realm' );
+        $realm = $this->SolrINI->variable( 'SolrBaseSettings', 'Realm' );
         if ( $realm == 'default' )
         {
             $SiteINI = eZINI::instance( 'site.ini' );
@@ -51,6 +51,107 @@ class eZSolr
         else
         {
             $this->Realm = $realm;
+        }
+
+        $this->resultHighLight = 'no';
+        if ( $this->SolrINI->variable( 'HighLightSettings', 'ResultHighLight' ) == 'enabled' )
+        {
+            $this->ResultHighLight            = 'yes';
+            $this->HighLightFields            = array();
+            $this->HighLightSnipplets         = 2;
+            $this->HighLightFragmentSize      = 100;
+            $this->HighLightRequireFieldMatch = 'true';
+            $this->HighLightPreText           = '<b>';
+            $this->HighLightPostText          = '</b>';
+
+            if ( count( $this->SolrINI->variable( 'HighLightSettings', 'HighLightFields' ) ) )
+            {
+                $this->HighLightFields = $this->SolrINI->variable( 'HighLightSettings', 'HighLightFields' );
+            }
+            if ( $this->SolrINI->hasVariable( 'HighLightSettings', 'SnippetLength' ) )
+            {
+                $this->HighLightSnipplets = $this->SolrINI->variable( 'HighLightSettings', 'SnippetLength' );
+            }
+            if ( $this->SolrINI->hasVariable( 'HighLightSettings', 'FragmentSize' ) )
+            {
+                $this->HighLightFragmentSize = $this->SolrINI->variable( 'HighLightSettings', 'FragmentSize' );
+            }
+            if ( $this->SolrINI->hasVariable( 'HighLightSettings', 'RequireFieldMatch' ) )
+            {
+                $this->HighLightRequireFieldMatch = $this->SolrINI->variable( 'HighLightSettings', 'RequireFieldMatch' );
+            }
+            if ( $this->SolrINI->hasVariable( 'HighLightSettings', 'PreText' ) )
+            {
+                $this->HighLightPreText = $this->SolrINI->variable( 'HighLightSettings', 'PreText' );
+            }
+            if ( $this->SolrINI->hasVariable( 'HighLightSettings', 'PostText' ) )
+            {
+                $this->HighLightPostText = $this->SolrINI->variable( 'HighLightSettings', 'PostText' );
+            }
+        }
+
+        $this->UseFacets = 'false';
+        if ( $this->SolrINI->variable( 'FacetSettings', 'UseFacets' ) == 'enabled' )
+        {
+            $this->UseFacets     = 'true';
+            $this->FacetFields   = array();
+            $this->FacetMinCount = 1;
+            $this->FacetSort     = 'true';
+            $this->FacetLimit    = 100;
+            $this->FacetOffset   = 0;
+            $this->FacetMissing  = 'false';
+            $this->FacetPrefix   = '';
+
+            if ( count( $this->SolrINI->variable( 'FacetSettings', 'FacetAttributes' ) ) )
+            {
+                $facetAttributes = $this->SolrINI->variable( 'FacetSettings', 'FacetAttributes' );
+                foreach ( $facetAttributes as $attr )
+                {
+                    $this->FacetFields[] = 'attr_' . $attr;
+                }
+            }
+            if ( count( $this->SolrINI->variable( 'FacetSettings', 'FacetMeta' ) ) )
+            {
+                $facetAttributes = $this->SolrINI->variable( 'FacetSettings', 'FacetMeta' );
+                foreach ( $facetAttributes as $attr )
+                {
+                    $this->FacetFields[] = 'm_' . $attr;
+                }
+            }
+            if ( $this->SolrINI->hasVariable( 'FacetSettings', 'FacetMinCount' ) )
+            {
+                $this->FacetMinCount = $this->SolrINI->variable( 'FacetSettings', 'FacetMinCount' );
+            }
+            if ( $this->SolrINI->hasVariable( 'FacetSettings', 'FacetSort' ) )
+            {
+                $this->FacetSort = $this->SolrINI->variable( 'FacetSettings', 'FacetSort' ) ? 'true' : 'false';
+            }
+            if ( $this->SolrINI->hasVariable( 'FacetSettings', 'FacetLimit' ) )
+            {
+                $this->FacetLimit = $this->SolrINI->variable( 'FacetSettings', 'FacetLimit' );
+            }
+            if ( $this->SolrINI->hasVariable( 'FacetSettings', 'FacetOffset' ) )
+            {
+                $this->FacetOffset = $this->SolrINI->variable( 'FacetSettings', 'FacetOffset' );
+            }
+            if ( $this->SolrINI->hasVariable( 'FacetSettings', 'FacetMissing' ) )
+            {
+                $this->FacetMissing = $this->SolrINI->variable( 'FacetSettings', 'FacetMissing' ) ? 'true' : 'false';
+            }
+            if ( $this->SolrINI->hasVariable( 'FacetSettings', 'FacetPrefix' ) )
+            {
+                $this->FacetPrefix = $this->SolrINI->variable( 'FacetSettings', 'FacetPrefix' );
+            }
+        }
+
+
+        if ( $this->SolrINI->variable( 'SolrBaseSettings', 'DebugQueryRequest' ) == 'enabled' )
+        {
+            $this->DebugQueryRequest = true;
+        }
+        else
+        {
+            $this->DebugQueryRequest = false;
         }
     }
 
@@ -145,6 +246,11 @@ class eZSolr
             // Add main url_alias
             $doc->addField( 'm_main_url_alias', $mainNode->attribute( 'url_alias' ) );
 
+            $parentNode = $mainNode->attribute( 'parent' );
+            $doc->addField( 'm_path_string', $mainNode->attribute( 'path_string' ) );
+
+            $doc->addField( 'm_parent_path_string', $parentNode->attribute( 'path_string' ) );
+
             foreach ( $pathArray as $pathNodeID )
             {
                 $doc->addField( 'm_path', $pathNodeID );
@@ -154,12 +260,53 @@ class eZSolr
 
             foreach ( $currentVersion->contentObjectAttributes( $languageCode ) as $attribute )
             {
-                $metaDataText = '';
+                $metaData = array();
                 $classAttribute = $attribute->contentClassAttribute();
                 if ( $classAttribute->attribute( 'is_searchable' ) == 1 )
                 {
-                    $metaData = $attribute->metaData();
-                    if ( is_array( $metaData ) )
+                    $tmpMetaData = $attribute->metaData();
+                    if ( !is_array( $tmpMetaData ) )
+                    {
+                        $tmpMetaData = array( array( 'id' => 'attr_' . $classAttribute->attribute( 'identifier' ),
+                                                     'text' => $tmpMetaData ) );
+                    }
+                    elseif ( is_array( $tmpMetaData ) && array_key_exists( 'text', $tmpMetaData ) )
+                    {
+                        $metaDataText = '';
+                        foreach( $metaData as $metaDataElement )
+                        {
+                            $metaDataText .= ' ' . $metaDataElement['text'];
+                        }
+                        $tmpMetaData = array( array( 'id' => 'attr_' . $classAttribute->attribute( 'identifier' ),
+                                                     'text' => $tmpMetaData ) );
+                    }
+                    $metaData = array_merge( $metaData, $tmpMetaData );
+
+                    foreach( $metaData as $metaDataPart )
+                    {
+                        $fieldName = $metaDataPart['id'];
+                        if ( is_array( $metaDataPart['text'] ) )
+                        {
+                            foreach ( $metaDataPart['text'] as $text )
+                            {
+                                if ( is_array( $text ) )
+                                {
+                                    $resultText = '';
+                                    foreach ( $text as $textPart )
+                                    {
+                                        $resultText .= ' ' . $textPart;
+                                    }
+                                    $text = $resultText;
+                                }
+                                $doc->addField( $fieldName, $text );
+                            }
+                        }
+                        else
+                        {
+                            $doc->addField( $fieldName, $metaDataPart['text'] );
+                        }
+                    }
+/*                    if ( count( $metaData ) )
                     {
                         foreach( $metaData as $metaDataElement )
                         {
@@ -171,7 +318,7 @@ class eZSolr
                         $metaDataText = $metaData;
                     }
                     $doc->addField( 'attr_' . $classAttribute->attribute( 'identifier' ),
-                                    $metaDataText );
+                                    $metaDataText );*/
                 }
             }
             eZContentObject::recursionProtectionEnd();
@@ -430,8 +577,8 @@ class eZSolr
         $sectionID = isset( $params['SearchSectionID'] ) && $params['SearchSectionID'] > 0 ? $params['SearchSectionID'] : false;
         $filterQuery = array();
         //FacetFields and FacetQueries not used yet! Need to add it to the module as well
-        $facetFields = ( isset( $params['FacetFields'] ) && $params['FacetFields'] ) ? $params['FacetFields'] : array('m_class_name');
-        $facetQueries = ( isset( $params['FacetQueries'] ) && $params['FacetQueries'] ) ? $params['FacetQueries'] : array();
+//         $facetFields = ( isset( $params['FacetFields'] ) && $params['FacetFields'] ) ? $params['FacetFields'] : array('m_class_name');
+//         $facetQueries = ( isset( $params['FacetQueries'] ) && $params['FacetQueries'] ) ? $params['FacetQueries'] : array();
 
         if ( count( $subtrees ) > 0 )
         {
@@ -524,7 +671,6 @@ class eZSolr
         //partly true as it is mostly composed of one or more attributes.
         //maybe we should add meta data to the index to filter them out.
 
-        $highLightFields = $queryFields;
         $queryFields[] = 'm_name^2.0';
         $queryFields[] = 'm_owner_name^1.5';
         $queryParams = array(
@@ -540,23 +686,55 @@ class eZSolr
             'm_language_code m_name score m_published',
             'q' => $searchText,
             'fq' => $filterQuery,
-//            'facet' => 'true',
-//            'facet.field' => 'm_class_name',
-//            'facet.mincount' => '1',
-//            'facet.sort' => 'true',
-            'hl' => 'true',
-            'hl.fl' => $highLightFields,
-            'hl.snippets' => 2,
-            'hl.fragsize' => 100,
-            'hl.requireFieldMatch' => 'true',
-            'hl.simple.pre' => '<b>',
-            'hl.simple.post' => '</b>',
             'wt' => 'php'
             );
 
+        if ( $this->UseFacets == 'true' )
+        {
+            $facetParams = array( );
+            $facetParams['facet'] = 'true';
+            $facetParams['facet.field'] = implode( ' ', $this->FacetFields );
+            $facetParams['facet.sort'] = $this->FacetSort;
+            $facetParams['facet.limit'] = $this->FacetLimit;
+            $facetParams['facet.offset'] = $this->FacetOffset;
+            $facetParams['facet.mincount'] = $this->FacetMinCount;
+            $facetParams['facet.missing'] = $this->FacetMissing;
+            $facetParams['facet.prefix'] = $this->FacetPrefix;
+
+            $queryParams = array_merge( $queryParams, $facetParams );
+
+         }
+
+        if ( $this->ResultHighLight == 'yes' )
+        {
+            $highLightFields = array();
+            if ( count( $this->HighLightFields ) )
+            {
+                $highLightFields = $this->HighLightFields;
+            }
+            else
+            {
+                $highLightFields = $queryFields;
+            }
+            $hightLightParams = array(
+                'hl'                   => $this->ResultHighLight,
+                'hl.fl'                => $highLightFields,
+                'hl.snippets'          => $this->HighLightSnipplets,
+                'hl.fragsize'          => $this->HighLightFragmentSize,
+                'hl.requireFieldMatch' => $this->HighLightRequireFieldMatch,
+                'hl.simple.pre'        => $this->HighLightPreText,
+                'hl.simple.post'       => $this->HighLightPostText
+            );
+
+            $queryParams = array_merge( $queryParams, $hightLightParams );
+        }
+        if ( $this->DebugQueryRequest )
+        {
+            $queryParams = array_merge( $queryParams, array( 'debugQuery' => 'on' ) );
+        }
+
         eZDebug::writeDebug( $queryParams );
         $resultArray = $this->Solr->rawSearch( $queryParams );
-
         if (! $resultArray )
         {
             return array(
@@ -565,7 +743,8 @@ class eZSolr
                 'StopWordArray' => array(),
                 'SearchExtras' => array(
                     'DocExtras' => array(),
-//                   'FacetArray' => $resultArray['facet_counts'],
+                    'FacetArray' => $resultArray['facet_counts'],
+                    'Debug' => $resultArray['debug'],
                     'ResponseHeader' => $resultArray['responseHeader'],
                     'Error' => ezi18n( 'ezfind', 'Server not running' ),
                     'Engine' => $this->engineText() ) );
@@ -644,8 +823,9 @@ class eZSolr
             'StopWordArray' => $stopWordArray,
             'SearchExtras' => array(
                 'DocExtras' => $docExtras,
-//                   'FacetArray' => $resultArray['facet_counts'],
+                'FacetArray' =>  array_key_exists( 'facet_counts', $resultArray ) ?  $resultArray['facet_counts'] : false,
                 'ResponseHeader' => $resultArray['responseHeader'],
+                'Debug' => array_key_exists( 'debug', $resultArray ) ?  $resultArray['debug'] : false,
                 'Error' => '',
                 'Engine' => $this->engineText() )
             );
@@ -810,6 +990,27 @@ class eZSolr
     var $SearchSeverURI;
     var $Realm;
     var $FindINI;
+
+
+    var $resultHighLight;
+    var $HighLightFields;
+    var $HighLightSnipplets;
+    var $HighLightFragmentSize;
+    var $HighLightRequireFieldMatch;
+    var $HighLightPreText;
+    var $HighLightPostText;
+
+    var $UseFacets;
+    var $FacetFields;
+    var $FacetPrefix;
+    var $FacetMinCount;
+    var $FacetSort;
+    var $FacetLimit;
+    var $FacetOffset;
+    var $FacetMissing;
+
+    var $DebugQueryRequest;
+
 }
 
 ?>

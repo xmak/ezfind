@@ -331,6 +331,7 @@
    <!--dynamicField name="*" type="ignored" /-->
    <dynamicField name="attr_*" type="text"    indexed="true"  stored="true" termVectors="true"/>
    <dynamicField name="m_*" type="string"    indexed="true"  stored="true" multiValued="true"/>
+   <dynamicField name="xmp_*" type="string"    indexed="true"  stored="true" multiValued="true"/>
    <dynamicField name="sort_*" type="string"    indexed="true"  stored="false"/>
    
 <!-- "default" fields to use, a combination of all other fields
@@ -356,6 +357,7 @@
   <!-- copyField commands copy one field to another at the time a document
         is added to the index.  It's used either to index the same field differently,
         or to add multiple fields to the same field for easier/faster searching.  -->
+ <copyField source="xmp_*" dest="df_attr"/>
  <copyField source="attr_*" dest="df_attr"/>
  <copyField source="m_*" dest="df_meta"/>
  <copyField source="m_name" dest="sp_words"/>
