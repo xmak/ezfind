@@ -21,8 +21,6 @@ PostText=</b>
 # If Fields is left empty, all seachable attributes are used
 HighLightFields[]
 
-
-
 [FacetSettings]
 UseFacets=enabled
 FacetAttributes[]
@@ -42,5 +40,17 @@ FacetSort=1
 FacetLimit=100
 FacetOffset=0
 FacetMissing=1
+
+[FieldAliasSettings]
+UseFieldAliases=enabled
+FieldAliasList[]
+FieldAliasList[id]=m_id
+FieldAliasList[section]=m_section_id
+FieldAliasList[class]=m_class_identifier
+FieldAliasList[modified]=m_modified
+FieldAliasList[published]=m_published
+FieldAliasList[parent]=m_main_parent_node_id
+FieldAliasList[publisher]=xmp_ezdc_publisher
+FieldAliasList[type]=xmp_ezdc_type
 
 */ ?>

@@ -144,6 +144,15 @@ class eZSolr
             }
         }
 
+        $this->UseFieldAliases = false;
+        if ( $this->SolrINI->variable( 'FieldAliasSettings', 'UseFieldAliases' ) == 'enabled' )
+        {
+            $this->UseFieldAliases = true;
+            if ( count( $this->SolrINI->variable( 'FieldAliasSettings', 'FieldAliasList' ) ) )
+            {
+                $this->FieldAliasList = $this->SolrINI->variable( 'FieldAliasSettings', 'FieldAliasList' );
+            }
+        }
 
         if ( $this->SolrINI->variable( 'SolrBaseSettings', 'DebugQueryRequest' ) == 'enabled' )
         {
@@ -661,6 +670,22 @@ class eZSolr
         {
         }
 
+        if ( $this->UseFieldAliases )
+        {
+            $fieldNames = array();
+            $result = preg_match_all( '/([a-z]*):\"?[a-z]*\"?/U', $searchText, $fields );
+            if ( $result > 0 )
+            {
+                foreach ( $fields[1] as $field )
+                {
+                    if ( array_key_exists( $field, $this->FieldAliasList ) )
+                    {
+                        $searchText = str_replace( $field, $this->FieldAliasList[$field], $searchText );
+                    }
+                }
+            }
+        }
+
         //the array_unique below is necessary because attribute identifiers are not unique .. and we get as
         //much highlight snippets as there are duplicate attribute identifiers
         //these are also in the list of query fields (dismax, ezpublish) request handlers
@@ -1008,6 +1033,9 @@ class eZSolr
     var $FacetLimit;
     var $FacetOffset;
     var $FacetMissing;
+
+    var $UseFieldAliases;
+    var $FieldAliasList;
 
     var $DebugQueryRequest;
 
