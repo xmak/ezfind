@@ -693,7 +693,7 @@ class eZSolr
         {
             $facetParams = array( );
             $facetParams['facet'] = 'true';
-            $facetParams['facet.field'] = implode( ' ', $this->FacetFields );
+            $facetParams['facet.field'] = $this->FacetFields;
             $facetParams['facet.sort'] = $this->FacetSort;
             $facetParams['facet.limit'] = $this->FacetLimit;
             $facetParams['facet.offset'] = $this->FacetOffset;
