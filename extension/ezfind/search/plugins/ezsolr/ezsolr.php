@@ -799,20 +799,33 @@ class eZSolr
             $docs = $result['docs'];
             $objectRes = array();
             $docExtras = array();
+
+            $nodeArray = array();
+            $tmpDocList = array();
             foreach ( $docs as $idx => $doc )
             {
-                if ( $doc['m_installation_id'] == $this->installationID() )
+                $nodeArray[] = $doc['m_main_node_id'];
+                $tmpDocList[$doc['m_main_node_id']] = $doc;
+            }
+
+            $objectTreeRow = eZPersistentObject::fetchObjectList( eZContentObjectTreeNode::definition(),
+                                                                null,
+                                                                array( 'node_id' => array( $nodeArray ) ),
+                                                                null,
+                                                                null,
+                                                                false );
+
+            foreach ( $objectTreeRow as $idx => $doc )
+            {
+                if ( $tmpDocList[$doc['main_node_id']]['m_installation_id'] == $this->installationID() )
                 {
                     // Search result document is from current installation
                     $docExtras[$idx]['is_local_installation'] = true;
-                    $objectTreeRow = eZPersistentObject::fetchObject( eZContentObjectTreeNode::definition(),
-                                                                      null,
-                                                                      array( 'node_id' => $doc['m_main_node_id'] ),
-                                                                      false );
-                    $resultTree = new eZFindResultNode( $objectTreeRow );
+
+                    $resultTree = new eZFindResultNode( $doc );
                     $resultTree->setAttribute( 'is_local_installation', true );
 
-                    $globalURL = $doc['m_main_url_alias'] . '/(language)/' . $doc['m_language_code'];
+                    $globalURL = $tmpDocList[$doc['main_node_id']]['m_main_url_alias'] . '/(language)/' . $tmpDocList[$doc['main_node_id']]['m_language_code'];
                     eZURI::transformURI( $globalURL );
 
                 }
@@ -820,20 +833,19 @@ class eZSolr
                 {
                     $resultTree = new eZFindResultNode();
                     $resultTree->setAttribute( 'is_local_installation', false );
-                    $globalURL = $doc['m_installation_url'] . $doc['m_main_url_alias'] .
-                        '/(language)/' . $doc['m_language_code'];
+                    $globalURL = $tmpDocList[$doc['main_node_id']]['m_installation_url'] . $tmpDocList[$doc['main_node_id']]['m_main_url_alias'] .
+                        '/(language)/' . $tmpDocList[$doc['main_node_id']]['m_language_code'];
                 }
-
-                $resultTree->setAttribute( 'name', $doc['m_name'] );
-                $resultTree->setAttribute( 'published', $doc['m_published'] );
+                $resultTree->setAttribute( 'name', $tmpDocList[$doc['main_node_id']]['m_name'] );
+                $resultTree->setAttribute( 'published', $tmpDocList[$doc['main_node_id']]['m_published'] );
                 $resultTree->setAttribute( 'global_url_alias', $globalURL );
-                $resultTree->setAttribute( 'highlight', isset( $highLights[$doc['m_guid']] ) ? $highLights[$doc['m_guid']] : null );
-                $resultTree->setAttribute( 'score_percent', (int) ( ( $doc['score'] / $maxScore ) * 100 ) );
-                $resultTree->setAttribute( 'language_code', $doc['m_language_code'] );
+                $resultTree->setAttribute( 'highlight', isset( $highLights[$tmpDocList[$doc['main_node_id']]['m_guid']] ) ? $highLights[$tmpDocList[$doc['main_node_id']]['m_guid']] : null );
+                $resultTree->setAttribute( 'score_percent', (int) ( ( $tmpDocList[$doc['main_node_id']]['score'] / $maxScore ) * 100 ) );
+                $resultTree->setAttribute( 'language_code', $tmpDocList[$doc['main_node_id']]['m_language_code'] );
                 $objectRes[] = $resultTree;
+
             }
         }
-
         $stopWordArray = array();
         eZDebug::writeDebug( isset( $resultArray['highlighting'] ) ? $resultArray['highlighting'] : 'No hightlights returned', ' Highlights ' );
 //      eZDebug::writeDebug( $resultArray['facet_counts'], ' Facets ' );
@@ -1019,7 +1031,7 @@ class eZSolr
     var $FindINI;
 
 
-    var $resultHighLight;
+    var $ResultHighLight;
     var $HighLightFields;
     var $HighLightSnipplets;
     var $HighLightFragmentSize;
