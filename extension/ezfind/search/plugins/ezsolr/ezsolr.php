@@ -969,11 +969,13 @@ class eZSolr
 
         if ( count( $resultSet ) == 1 )
         {
-            return $resultSet[0]['value'];
+            $this->InstallationID = $resultSet[0]['value'];
         }
-
-        $this->InstallationID = md5( mktime() . '-' . mt_rand() );
-        $db->query( 'INSERT INTO ezsite_data ( name, value ) values( \'ezfind_site_id\', \'' . $this->InstallationID . '\' )' );
+        else
+        {
+            $this->InstallationID = md5( mktime() . '-' . mt_rand() );
+            $db->query( 'INSERT INTO ezsite_data ( name, value ) values( \'ezfind_site_id\', \'' . $this->InstallationID . '\' )' );
+        }
 
         return $this->InstallationID;
     }
