@@ -260,6 +260,8 @@ class eZSolr
 
             $doc->addField( 'm_parent_path_string', $parentNode->attribute( 'path_string' ) );
 
+            $doc->addField( 'm_depth', $parentNode->attribute( 'depth' ) );
+
             foreach ( $pathArray as $pathNodeID )
             {
                 $doc->addField( 'm_path', $pathNodeID );
@@ -585,6 +587,9 @@ class eZSolr
         $contentClassAttributeID = ( isset( $params['SearchContentClassAttributeID'] ) && $params['SearchContentClassAttributeID'] <> -1 ) ? $params['SearchContentClassAttributeID'] : false;
         $sectionID = isset( $params['SearchSectionID'] ) && $params['SearchSectionID'] > 0 ? $params['SearchSectionID'] : false;
         $filterQuery = array();
+
+        $sortArray = isset( $params['SortArray'] ) ? $params['SortArray'] : array();
+var_dump($sortArray);
         //FacetFields and FacetQueries not used yet! Need to add it to the module as well
 //         $facetFields = ( isset( $params['FacetFields'] ) && $params['FacetFields'] ) ? $params['FacetFields'] : array('m_class_name');
 //         $facetQueries = ( isset( $params['FacetQueries'] ) && $params['FacetQueries'] ) ? $params['FacetQueries'] : array();
@@ -686,6 +691,82 @@ class eZSolr
             }
         }
 
+        $sortString = '';
+        if ( count( $sortArray ) )
+        {
+            $searchAttributeMappingList = array();
+            if ( count( $this->SolrINI->variable( 'SortFieldSettings', 'SortFieldList' ) ) )
+            {
+                $searchAttributeMappingList = $this->SolrINI->variable( 'SortFieldSettings', 'SortFieldList' );
+            }
+
+            $sortList = false;
+            if ( isset( $sortArray ) && is_array( $sortArray ) &&  count( $sortArray ) > 0 )
+            {
+                $sortList = $sortArray;
+                if ( count( $sortList ) > 1 && !is_array( $sortList[0] ) )
+                {
+                    $sortList = array( $sortList );
+                }
+            }
+            if ( $sortList !== false )
+            {
+                $sortingFieldList = array();
+                foreach ( $sortList as $sortBy )
+                {
+                    $sortOrder = true; // true is ascending
+                    if ( isset( $sortBy[1] ) )
+                        $sortOrder = $sortBy[1];
+                    $sortOrder .= $sortOrder ? " asc" : " desc";
+
+                    $sortField = $sortBy[0];
+                    if ( count( $searchAttributeMappingList ) && array_key_exists( $sortField, $searchAttributeMappingList ) )
+                    {
+                        $sortFieldName = $searchAttributeMappingList[$sortField];
+                        if ( strpos( $sortFieldName, '*' ) && count( $sortBy ) == 3 )
+                        {
+                                $sortClassID = $sortBy[2];
+                                if ( strpos( $sortClassID, '/' )  )
+                                {
+                                    list( $class, $attr ) = split("/", $sortClassID, 2 );
+                                    if ( is_int( $attr ) )
+                                    {
+                                        include_once( 'kernel/classes/ezcontentclassattributenamelist.php' );
+                                        $contentClass = eZContentClassAttribute::fetch( $attr );
+                                        $sortFieldName = str_replace( '*', $contentClass->attribute( 'identifier' ), $sortFieldName );
+                                    }
+                                }
+                                elseif ( is_int( $sortClassID ) )
+                                {
+                                    include_once( 'kernel/classes/ezcontentclassattributenamelist.php' );
+                                    $contentClass = eZContentClassAttribute::fetch( $attr );
+                                    $attrName = $contentClass->attribute( 'identifier' );
+                                    $sortFieldName = str_replace( '*', $attrName, $sortFieldName );
+                                }
+                                else
+                                {
+                                    $sortFieldName = str_replace( '*', $sortClassID, $sortFieldName );
+                                }
+                                $sortingFieldList[] = $sortFieldName . $sortOrder;
+                        }
+                        else
+                        {
+                            $sortingFieldList[] = $searchAttributeMappingList[$sortField] . $sortOrder;
+                        }
+                    }
+                }
+                if ( count( $sortingFieldList ) )
+                {
+                    $sortString = implode( ",", $sortingFieldList );
+                }
+            }
+
+            
+        }
+var_dump($sortingFieldList);
+
+
+
         //the array_unique below is necessary because attribute identifiers are not unique .. and we get as
         //much highlight snippets as there are duplicate attribute identifiers
         //these are also in the list of query fields (dismax, ezpublish) request handlers
@@ -711,7 +792,8 @@ class eZSolr
             'm_language_code m_name score m_published',
             'q' => $searchText,
             'fq' => $filterQuery,
-            'wt' => 'php'
+            'wt' => 'php',
+            'sort' => $sortString
             );
 
         if ( $this->UseFacets == 'true' )

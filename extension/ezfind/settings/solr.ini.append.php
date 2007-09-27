@@ -53,4 +53,19 @@ FieldAliasList[parent]=m_main_parent_node_id
 FieldAliasList[publisher]=xmp_ezdc_publisher
 FieldAliasList[type]=xmp_ezdc_type
 
+[SortFieldSettings]
+SortFieldList[]
+SortFieldList[relevance]=score
+SortFieldList[path]=m_path
+SortFieldList[published]=m_published
+SortFieldList[modified]=m_modified
+SortFieldList[section]=m_section_id
+SortFieldList[depth]=m_depth
+SortFieldList[class_identifier]=m_class_identifier
+SortFieldList[class_name]=m_class_name
+SortFieldList[priority]=m_priority
+SortFieldList[name]=m_name
+SortFieldList[attribute]=attr_*
+SortFieldList[xmp]=xmp_*
+
 */ ?>
