@@ -12,7 +12,7 @@ Realm=nfpro
 DebugQueryRequest=enabled
 
 [HighLightSettings]
-ResultHighLight=enabled
+ResultHighLight=disabled
 SnippetLength=2
 FragmentSize=100
 RequireFieldMatch=true
