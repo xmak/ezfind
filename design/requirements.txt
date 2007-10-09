@@ -1,0 +1,44 @@
+eZ Find: Native indexing, Requirements
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+:Author:   Kåre Køhler Høvik
+:Revision: 
+:Date:    
+
+Introduction
+============
+
+Description
+-----------
+All content indexed in eZ Find today is index as strings. This limits both the 
+quality of the search result, and possibilities of the search. To enhance the 
+search functionality, native datatypes should be used where possible.
+
+Requirements
+============
+- Support native datatypes:
+  int
+  double
+  timestamp ( datetime )
+  hashes ( associative 2-d arrays )
+  text
+- Searching in specific fields of hashes.
+
+Considerations
+==============
+Specifying the searches must be possible via the design templates. It should 
+be possible to use facets for the hash structures if possible.
+
+To avoid having to alter the solr scema, the schema provided with eZ Find must 
+be able to adopt to the properties mentioned above.
+
+To override the metadata functions while indexing, using a plugin-based 
+override system should be considered to be able to support custom eZ Publish 
+datatypes.
+
+
+..
+   Local Variables:
+   mode: rst
+   fill-column: 79
+   End:
+   vim: et syn=rst tw=79
