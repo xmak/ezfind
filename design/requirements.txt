@@ -1,0 +1,53 @@
+eZ Find: Facets, Requirements
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+:Author:   Kåre Køhler Høvik
+:Revision: 
+:Date:    
+
+Introduction
+============
+
+Description
+-----------
+The primary use for faceting is drilldown into a subset of hits resulting from 
+a query. The chosen facet value is used to construct a filter query which 
+literally matches that value in the index.
+
+This must be as easy as possible to set up for developers, meaning it should 
+be controlled from the design templates.
+
+Requirements
+============
+See Solr facets parameters[1] for more explanation.
+- Possibility to set the following facet parameters from the design templates:
+   facet.query
+   facet.field
+   facet.prefix
+   facet.sort
+   facet.limit
+   facet.offset
+   facet.mincount
+   facet.missing
+   facet.enum.cache.minDf
+   facet.date
+   facet.date.start
+   facet.date.end
+   facet.date.gap
+   facet.date.hardend
+   facet.date.other
+- Should return all data provided by Solr.
+
+Considerations
+==============
+The facet functions and result should be abstracted from Solr syntax where 
+Solr syntax is not of a general fassion.
+
+Native indexing must be implemented to be able to support facets for hash data
+types.
+
+..
+   Local Variables:
+   mode: rst
+   fill-column: 79
+   End:
+   vim: et syn=rst tw=79
