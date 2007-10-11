@@ -1,0 +1,110 @@
+eZ Components - Authentication, Design
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+:Author:   Kåre Køhler Høvik
+:Revision: 
+:Date:     
+
+
+Introduction
+============
+
+Description
+-----------
+
+All content indexed in eZ Find today is index as strings. This limits both the 
+quality of the search result, and possibilities of the search. To enhance the 
+search functionality, native datatypes should be used where possible.
+
+
+Design
+======
+
+Classes
+-------
+
+ezfDocumentFieldBase
+^^^^^^^^^^^^^^^^^^^^
+Abstract class  defining functions needed to extract data needed for the 
+indexing process.
+
+ezfDocumentFieldDefault
+^^^^^^^^^^^^^^^^^^^^^^^
+Extends ezfDocumentFieldBase.
+Default document field class. Content will be indexed using this this class
+unless a specific implementation of ezfDocumentFieldInterface is defined.
+
+ezfDocumentFieldInteger
+^^^^^^^^^^^^^^^^^^^^^^^
+Extends ezfDocumentFieldBase.
+Class implementing integer document field.
+
+ezfDocumentFieldFloat
+^^^^^^^^^^^^^^^^^^^^^^^
+Extends ezfDocumentFieldBase.
+Class implementing float document field.
+
+ezfDocumentFieldTimestamp
+^^^^^^^^^^^^^^^^^^^^^^^^^
+Extends ezfDocumentFieldBase.
+Class implementing timestamp document field.
+
+ezfDocumentFieldHash
+^^^^^^^^^^^^^^^^^^^^
+Extends ezfDocumentFieldBase.
+Class implementing hash document field.
+
+ezfDocumentFieldText
+^^^^^^^^^^^^^^^^^^^^
+Extends ezfDocumentFieldBase.
+Class implementing text document field.
+
+
+Implementation
+==============
+
+ezfDocumentFieldBase
+--------------------
+
+Document field interface containing the required functions for accessing the 
+data to index a document field. 
+Functions:
+
+getData()
+Abstract.
+Returns the data to index. Return type is a hash , format <key_name> =>
+<value>. The document might specify a prefix which should be used for the field
+name.
+
+getCollectionData()
+Return collection list. Returns empty array if isCollection() is false.
+Return value array.
+
+isCollection()
+Returns true if is collection. Return value false.
+
+getFieldType()
+Returns the name of the field type from the SOLR schema.
+
+instance()
+Returns instance of ezfDocumentFieldBase sub-class. Takes
+eZContentObjectAttribute as parameter.
+
+Loading ezfDocumentFieldBase sub-class
+--------------------------------------
+
+Loading ezfDocumentFieldBase sub-class should be ini based. An 
+ini file will define custom eZContentObjectAttribute->attribute(
+'data_type_string' ) to ezfDocumentFieldBase sub-class mapping. Extra
+ezfDocumentFieldBase classes will be loaded using the
+eZExtension::findExtensionType() function to load the requested plugin.
+
+If a mapping is not defined, it should fall back to ezfDocumentFieldDefault.
+
+
+
+..
+   Local Variables:
+   mode: rst
+   fill-column: 79
+   End:
+   vim: et syn=rst tw=79 nocin
