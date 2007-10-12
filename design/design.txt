@@ -22,58 +22,26 @@ Design
 Classes
 -------
 
-ezfDocumentFieldBase
-^^^^^^^^^^^^^^^^^^^^
-Abstract class  defining functions needed to extract data needed for the 
+ezfSolrDocumentFieldBase
+^^^^^^^^^^^^^^^^^^^^^^^^
+Default class  defining functions needed to extract data needed for the 
 indexing process.
-
-ezfDocumentFieldDefault
-^^^^^^^^^^^^^^^^^^^^^^^
-Extends ezfDocumentFieldBase.
-Default document field class. Content will be indexed using this this class
-unless a specific implementation of ezfDocumentFieldInterface is defined.
-
-ezfDocumentFieldInteger
-^^^^^^^^^^^^^^^^^^^^^^^
-Extends ezfDocumentFieldBase.
-Class implementing integer document field.
-
-ezfDocumentFieldFloat
-^^^^^^^^^^^^^^^^^^^^^^^
-Extends ezfDocumentFieldBase.
-Class implementing float document field.
-
-ezfDocumentFieldTimestamp
-^^^^^^^^^^^^^^^^^^^^^^^^^
-Extends ezfDocumentFieldBase.
-Class implementing timestamp document field.
-
-ezfDocumentFieldHash
-^^^^^^^^^^^^^^^^^^^^
-Extends ezfDocumentFieldBase.
-Class implementing hash document field.
-
-ezfDocumentFieldText
-^^^^^^^^^^^^^^^^^^^^
-Extends ezfDocumentFieldBase.
-Class implementing text document field.
 
 
 Implementation
 ==============
 
-ezfDocumentFieldBase
---------------------
+ezfSolrDocumentFieldBase
+------------------------
 
-Document field interface containing the required functions for accessing the 
+Default Document field class containing the required functions for accessing the 
 data to index a document field. 
 Functions:
 
 getData()
-Abstract.
-Returns the data to index. Return type is a hash , format <key_name> =>
+Returns the data to index. Return type is a hash , format <field_name> =>
 <value>. The document might specify a prefix which should be used for the field
-name.
+name. 
 
 getCollectionData()
 Return collection list. Returns empty array if isCollection() is false.
@@ -86,19 +54,25 @@ getFieldType()
 Returns the name of the field type from the SOLR schema.
 
 instance()
-Returns instance of ezfDocumentFieldBase sub-class. Takes
+Returns instance of ezfDocumentFieldBase or sub-class. Takes
 eZContentObjectAttribute as parameter.
 
-Loading ezfDocumentFieldBase sub-class
---------------------------------------
+Loading ezfSolrDocumentFieldBase sub-class
+------------------------------------------
 
-Loading ezfDocumentFieldBase sub-class should be ini based. An 
-ini file will define custom eZContentObjectAttribute->attribute(
-'data_type_string' ) to ezfDocumentFieldBase sub-class mapping. Extra
-ezfDocumentFieldBase classes will be loaded using the
-eZExtension::findExtensionType() function to load the requested plugin.
-
-If a mapping is not defined, it should fall back to ezfDocumentFieldDefault.
+Defining the field types are done 2 ways.
+* Simple types are defined in configuration files ( ini ). Example:
+  [SolrIndexMap]
+  Map[eztext]=text
+  Map[ezinteger]=sint
+  etc..
+* Custom data types may extend the ezfSolrDocumentFieldBase class. This may be
+done to achive propper mapping of data to the Solr index. Loading 
+ezfSolrDocumentFieldBase sub-classes should be ini based. An ini file will 
+define custom eZContentObjectAttribute->attribute( 'data_type_string' ) to 
+ezfSolrDocumentFieldBase sub-class mapping. ezfSolrDocumentFieldBase
+sub- classes will be loaded using the eZExtension::findExtensionType() function
+to load the requested plugin.
 
 
 
