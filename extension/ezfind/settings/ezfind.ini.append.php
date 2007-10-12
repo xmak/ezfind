@@ -7,6 +7,6 @@ URLProtocol=http://
 # index must be updated by running bin/php/updatesearchindex.php
 IndexPubliclyAvailable=enabled
 # Search other installations
-SearchOtherInstallations=enabled
+SearchOtherInstallations=disabled
 
 */ ?>

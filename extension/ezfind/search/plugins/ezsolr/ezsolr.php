@@ -262,6 +262,9 @@ class eZSolr
 
             $doc->addField( 'm_depth', $parentNode->attribute( 'depth' ) );
 
+            $imagesizeIsSet = false;
+            $dateCreatedIsSet = false;
+
             foreach ( $pathArray as $pathNodeID )
             {
                 $doc->addField( 'm_path', $pathNodeID );
@@ -296,6 +299,7 @@ class eZSolr
                     foreach( $metaData as $metaDataPart )
                     {
                         $fieldName = $metaDataPart['id'];
+
                         if ( is_array( $metaDataPart['text'] ) )
                         {
                             foreach ( $metaDataPart['text'] as $text )
@@ -309,12 +313,42 @@ class eZSolr
                                     }
                                     $text = $resultText;
                                 }
-                                $doc->addField( $fieldName, $text );
+                                if ( $fieldName == 'xmp_ezsanoma_imagesize' )
+                                {
+                                    $imagesizeIsSet = true;
+                                    $value = (int)$text;
+                                    if ( !$value ) $value  = 0;
+                                    $doc->addField( $fieldName, $value );
+                                }
+                                elseif ( $fieldName == 'xmp_ezphotoshop_DateCreated' )
+                                {
+                                    $dateCreatedIsSet = true;
+                                    if ( substr( $text, -1, 1 ) != 'Z' )
+                                        $value  = $text . "Z";
+                                    $doc->addField( $fieldName, $value );
+                                }
+                                else
+                                    $doc->addField( $fieldName, $text );
                             }
                         }
                         else
                         {
-                            $doc->addField( $fieldName, $metaDataPart['text'] );
+                            if ( $fieldName == 'xmp_ezsanoma_imagesize' )
+                            {
+                                $imagesizeIsSet = true;
+                                $value = (int)$metaDataPart['text'];
+                                if ( !$value ) $value  = 0;
+                                $doc->addField( $fieldName, $value );
+                            }
+                            elseif ( $fieldName == 'xmp_ezphotoshop_DateCreated' )
+                            {
+                                $dateCreatedIsSet = true;
+                                if ( substr( $metaDataPart['text'], -1, 1 ) != 'Z' )
+                                    $value  = $metaDataPart['text'] . "Z";
+                                $doc->addField( $fieldName, $value );
+                            }
+                            else
+                                $doc->addField( $fieldName, $metaDataPart['text'] );
                         }
                     }
 /*                    if ( count( $metaData ) )
@@ -332,6 +366,11 @@ class eZSolr
                                     $metaDataText );*/
                 }
             }
+            if ( $imagesizeIsSet == false )
+                $doc->addField( 'xmp_ezsanoma_imagesize', 33 );
+            if ( $dateCreatedIsSet == false )
+                $doc->addField( 'xmp_ezphotoshop_DateCreated', "1975-10-31Z" );
+
             eZContentObject::recursionProtectionEnd();
 
             $docList[] = $doc;
