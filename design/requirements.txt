@@ -28,7 +28,6 @@ See Solr facets parameters[1] for more explanation.
    facet.offset
    facet.mincount
    facet.missing
-   facet.date
    facet.date.start
    facet.date.end
    facet.date.gap
