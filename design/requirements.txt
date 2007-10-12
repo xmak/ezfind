@@ -28,7 +28,6 @@ See Solr facets parameters[1] for more explanation.
    facet.offset
    facet.mincount
    facet.missing
-   facet.enum.cache.minDf
    facet.date
    facet.date.start
    facet.date.end
@@ -44,6 +43,11 @@ Solr syntax is not of a general fassion.
 
 Native indexing must be implemented to be able to support facets for hash data
 types.
+
+References
+==========
+[1]: http://wiki.apache.org/solr/SimpleFacetParameters
+
 
 ..
    Local Variables:
