@@ -40,8 +40,8 @@ Functions:
 
 getData()
 Returns the data to index. Return type is a hash , format <field_name> =>
-<value>. The document might specify a prefix which should be used for the field
-name. 
+<value>. The solr document might specify a prefix which should be used for the
+field name. 
 
 getCollectionData()
 Return collection list. Returns empty array if isCollection() is false.
