@@ -1,1 +1,1 @@
-- Based on http://svn.ez.no/svn/extensions/ezfind/ezp3/trunk/ , rev. 1939.
+- Based on http://svn.ez.no/svn/extensions/ezfind/ezp3/trunk/ , rev. 1972.
