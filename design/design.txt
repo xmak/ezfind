@@ -53,6 +53,9 @@ Returns true if is collection. Return value false.
 getFieldType()
 Returns the name of the field type from the SOLR schema.
 
+getFieldName( <eZContentClassAttribue> )
+Returns the field name for a specified content class attribute.
+
 instance()
 Returns instance of ezfDocumentFieldBase or sub-class. Takes
 eZContentObjectAttribute as parameter.
