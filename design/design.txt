@@ -27,7 +27,7 @@ The query builder should be based on the code in
 extension/ezfind/search/plugins/ezsolr/ezsolr.php , but include a more general
 interface.
 
-This feature should also contain a custom fetch function to be aple to specify
+This feature should also contain a custom fetch function to be able to specify
 facets and future features. Suggested syntax;
 fetch( ezfind, search, <params> );
 
