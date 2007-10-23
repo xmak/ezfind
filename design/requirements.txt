@@ -1,0 +1,39 @@
+eZ Find: Sorting, Requirements
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+:Author:   Kåre Køhler Høvik
+:Revision: 
+:Date:    
+
+Introduction
+============
+
+Description
+-----------
+Add sort options to the fetch( ezfind, search, ... ) template function.
+
+Requirements
+============
+It must be possible to sort by:
+- Relevance
+- <class_name>/<attribute_name> pattern
+- Modification date
+- Created date
+- Author
+- Content class name
+- Placement depth
+
+And in ascending or descending order.
+
+It must also sort by multiple values. Example, "Placement depth" ASC, Relevance DESC.
+
+Considerations
+==============
+Requires indexing of native types to be implemented.
+
+
+..
+   Local Variables:
+   mode: rst
+   fill-column: 79
+   End:
+   vim: et syn=rst tw=79
