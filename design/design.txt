@@ -1,0 +1,56 @@
+eZ Components - Facets, Design
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+:Author:   Kåre Køhler Høvik
+:Revision: 
+:Date:     
+
+
+Introduction
+============
+
+Description
+-----------
+
+Add sort options to the fetch( ezfind, search, ... ) template function.
+
+
+Design
+======
+
+Sort options for fetch( ezfind, search, hash( ... ) ) are specified in the
+hash parameter by 'sort_by'. The possible sort options are:
+- relevance ( default )
+- <class_name>/<attribute_name>
+- modified
+- created
+- author
+- class_name
+- class_identifier
+- depth
+- name
+- path
+- section
+
+Sort order are:
+- asc
+- desc
+
+Examples: 
+- fetch( ezfind, search, hash( 'query', 'eZ Publish',
+                               'sort_by', array( 'modified', 'asc' ) ) )
+- fetch( ezfind, search, hash( 'query', 'eZ Publish',
+                               'sort_by', array( 'created', 'desc' ) ) )
+- fetch( ezfind, search, hash( 'query', 'eZ Publish',
+                               'sort_by', array( array( 'class_name', 'asc' ),
+                                               array( 'created', 'desc' ) ) ) )
+
+The implementation will be done by extending the functionality in 
+ezfeZPSolrQueryBuilder.
+
+
+..
+   Local Variables:
+   mode: rst
+   fill-column: 79
+   End:
+   vim: et syn=rst tw=79 nocin
