@@ -1,0 +1,40 @@
+eZ Find: Search access right client
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+:Author:   Kåre Køhler Høvik
+:Revision: 
+:Date:    
+
+
+Introduction
+============
+
+Description
+-----------
+The Search access right client connects to the user-right service, and 
+utilizes the user map module to fetch the correct user rights from external 
+installations. The user rights are then used to create the query filters for 
+limiting the search results on external installations.
+
+
+Requirements
+============
+- ReST client for reading access rights from User access right service
+- Caching of remote access rights
+- Query filter generation of remote access rights
+
+
+Considerations
+==============
+
+
+Requirements
+============
+ReST Web service for getting user permissions.
+
+
+..
+   Local Variables:
+   mode: rst
+   fill-column: 79
+   End:
+   vim: et syn=rst tw=79

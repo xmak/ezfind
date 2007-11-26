@@ -1,0 +1,47 @@
+eZ Find: ReST Web service for getting user permissions.
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+:Author:   Kåre Køhler Høvik
+:Revision: 
+:Date:    
+
+
+Introduction
+============
+
+Description
+-----------
+The User access right service's task is to provide the user rights for 
+external eZ Publish installations.
+
+
+Requirements
+============
+The ReST web service must return an XML document describing the result. The 
+service must include the possibility to retrieve:
+- User access rights based on user name
+- List of user groups
+- List of users
+- List of users in specified user group
+It must also have the possibility to require authentication when being used.
+
+All lists must be able to accept offset and limit parameters.
+
+
+Considerations
+==============
+No caching of the result should be done by this service. Caching should be
+performed by the client. Some caching of the user permissions is already done
+by eZ Publish.
+
+
+Requirements
+============
+ReST server.
+
+
+..
+   Local Variables:
+   mode: rst
+   fill-column: 79
+   End:
+   vim: et syn=rst tw=79

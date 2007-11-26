@@ -1,0 +1,45 @@
+eZ Find: User map module
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+:Author:   Kåre Køhler Høvik
+:Revision: 
+:Date:    
+
+Introduction
+============
+
+Description
+-----------
+The user map module is responsible for mapping user accounts between 
+installations. This may either "User group" <-> "User group" mapping,
+or "User" <-> "User" mapping.
+
+
+Requirements
+============
+The default behaviour will include "user group name" <-> "user group name" 
+mapping and "user name" <-> "user name" mapping, based on the installation.
+It must also have the  possibility to use custom mapping, provided by plug-ins.
+The plugins should be specified in configuration files.
+
+Functionality for retrieving complete list of user access rights must be 
+provided by this functionality.
+
+
+Considerations
+==============
+Invalidating cache of user access rights only needs to be passive. Default
+timeout should be 2 hours.
+
+
+Requirements
+============
+User permissions client.
+
+
+
+..
+   Local Variables:
+   mode: rst
+   fill-column: 79
+   End:
+   vim: et syn=rst tw=79
