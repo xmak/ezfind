@@ -102,6 +102,15 @@ class eZSolr
             $this->FacetMissing  = 'false';
             $this->FacetPrefix   = '';
 
+            if ( count( $this->SolrINI->variable( 'FacetSettings', 'FacetExtraAttributes' ) ) )
+            {
+                $facetAttributes = $this->SolrINI->variable( 'FacetSettings', 'FacetExtraAttributes' );
+                foreach ( $facetAttributes as $attr )
+                {
+                    $this->FacetFields[] = $attr;
+                }
+            }
+
             if ( count( $this->SolrINI->variable( 'FacetSettings', 'FacetAttributes' ) ) )
             {
                 $facetAttributes = $this->SolrINI->variable( 'FacetSettings', 'FacetAttributes' );
@@ -480,7 +489,7 @@ class eZSolr
 
             if ( count( $filterQueryPolicies ) > 0 )
             {
-                $filterQuery = implode( ' OR ', $filterQueryPolicies );
+                $filterQuery = '(' . implode( ' OR ', $filterQueryPolicies ) . ')';
             }
         }
 
@@ -1152,7 +1161,7 @@ class eZSolr
         }
         else
         {
-            $this->InstallationID = md5( mktime() . '-' . mt_rand() );
+            $this->InstallationID = md5( time() . '-' . mt_rand() );
             $db->query( 'INSERT INTO ezsite_data ( name, value ) values( \'ezfind_site_id\', \'' . $this->InstallationID . '\' )' );
         }
 

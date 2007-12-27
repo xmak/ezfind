@@ -304,7 +304,9 @@
    -->
    <field name="timestamp" type="date" indexed="true" stored="true" default="NOW" multiValued="false"/>
    <field name="sp_words" type="spell" indexed="true" stored="true" multiValued="true"/>
-   
+
+    <field name="xmp_ezsanoma_imagesize" type="sint" indexed="true"  stored="true"/>
+    <field name="xmp_ezphotoshop_DateCreated" type="date" indexed="true" stored="true"/>
 
    <!-- Dynamic field definitions.  If a field name is not found, dynamicFields
         will be used if the name matches any of the patterns.

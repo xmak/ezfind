@@ -32,10 +32,12 @@ function microtime_float()
 }
 set_time_limit( 0 );
 
+require_once( 'autoload.php' );
+/*
 include_once( 'lib/ezutils/classes/ezcli.php' );
 include_once( 'kernel/classes/ezscript.php' );
 include_once( 'kernel/classes/ezcontentobjecttreenode.php' );
-
+*/
 
 $cli = eZCLI::instance();
 $endl = $cli->endlineString();

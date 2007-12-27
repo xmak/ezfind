@@ -32,7 +32,7 @@ class eZSolrBase
     /*!
      \brief Constructor
     */
-    function eZSolrBase( $baseURI = 'http://localhost:8983/solr' )
+    function eZSolrBase( $baseURI = 'http://localhost:8984/solr' )
     {
         $this->SearchServerURI = $baseURI;
     }
@@ -112,6 +112,7 @@ class eZSolrBase
         }
 		$params['wt'] = $wt;
         $paramsAsString = $this->buildPostString( $params );
+        eZDebug::writeError( $paramsAsString );
         $data=$this->postQuery( $request, $paramsAsString );
         //print_r ($data);
         //echo ('data is ' . strlen($data) . " chars long\n");
