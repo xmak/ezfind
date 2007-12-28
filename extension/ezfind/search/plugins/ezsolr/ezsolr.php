@@ -471,6 +471,18 @@ class eZSolr
                             }
                         } break;
 
+                        case 'Group':
+                        {
+                            $userContentObject = $currentUser->attribute( 'contentobject' );
+                            $parentList = $userContentObject->attribute( 'parent_nodes' );
+                            $db = eZDB::instance();
+                            $result = $db->arrayQuery( "SELECT DISTINCT contentobject_id AS user_id FROM ezcontentobject_tree WHERE parent_node_id IN ("  . implode( ', ', $parentList ) . ')' );
+                            foreach ( $result as $userID )
+                            {
+                                $filterQueryPolicyLimitationParts[] = 'm_owner_id:' . $userID['user_id'];
+                            }
+                        } break;
+
                         default :
                         {
                             eZDebug::writeDebug( $limitationType, 'eZSolr::policyLimitationFilterQuery unknown limitation type: ' . $limitationType );
