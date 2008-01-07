@@ -32,7 +32,7 @@ class eZSolrBase
     /*!
      \brief Constructor
     */
-    function eZSolrBase( $baseURI = 'http://localhost:8984/solr' )
+    function eZSolrBase( $baseURI = 'http://localhost:8983/solr' )
     {
         $this->SearchServerURI = $baseURI;
     }
