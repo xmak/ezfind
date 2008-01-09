@@ -112,7 +112,7 @@ class eZSolrBase
         }
 		$params['wt'] = $wt;
         $paramsAsString = $this->buildPostString( $params );
-        eZDebug::writeError( $paramsAsString );
+        eZDebug::writeDebug( $paramsAsString );
         $data=$this->postQuery( $request, $paramsAsString );
         //print_r ($data);
         //echo ('data is ' . strlen($data) . " chars long\n");
