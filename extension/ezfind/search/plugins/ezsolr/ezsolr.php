@@ -337,7 +337,7 @@ class eZSolr
                                     $doc->addField( $fieldName, $value );
                                 }
                                 else
-                                    $doc->addField( $fieldName, $text );
+                                    $doc->addField( $fieldName, strtolower( $text ) );
                             }
                         }
                         else
@@ -357,7 +357,7 @@ class eZSolr
                                 $doc->addField( $fieldName, $value );
                             }
                             else
-                                $doc->addField( $fieldName, $metaDataPart['text'] );
+                                $doc->addField( $fieldName, strtolower( $metaDataPart['text'] ) );
                         }
                     }
 /*                    if ( count( $metaData ) )
@@ -638,6 +638,7 @@ class eZSolr
     function search( $searchText, $params = array(), $searchTypes = array() )
     {
         eZDebug::writeDebug( $params, 'search params' );
+        eZDebug::writeDebug( $searchText, 'search text' );
         $searchCount = 0;
 
         $offset = ( isset( $params['SearchOffset'] ) && $params['SearchOffset'] ) ? $params['SearchOffset'] : 0;
@@ -738,14 +739,14 @@ class eZSolr
         if ( $this->UseFieldAliases )
         {
             $fieldNames = array();
-            $result = preg_match_all( '/([a-z]*):\"?[a-z]*\"?/U', $searchText, $fields );
+            $result = preg_match_all( '/ ([a-z]*):\"?[a-z]*\"?/U', $searchText, $fields );
             if ( $result > 0 )
             {
                 foreach ( $fields[1] as $field )
                 {
                     if ( array_key_exists( $field, $this->FieldAliasList ) )
                     {
-                        $searchText = str_replace( $field, $this->FieldAliasList[$field], $searchText );
+                        $searchText = str_replace( $field, ' ' . $this->FieldAliasList[$field], $searchText );
                     }
                 }
             }
