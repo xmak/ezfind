@@ -307,6 +307,8 @@
 
     <field name="xmp_ezsanoma_imagesize" type="sint" indexed="true"  stored="true"/>
     <field name="xmp_ezphotoshop_DateCreated" type="date" indexed="true" stored="true"/>
+   <field name="xmp_ezdc_xmp_ezdc_publisher" type="string" indexed="true" stored="true" multiValued="true"/>     <!-- Location path string -->
+
 
    <!-- Dynamic field definitions.  If a field name is not found, dynamicFields
         will be used if the name matches any of the patterns.
@@ -331,7 +333,7 @@
         alternately, change the type="ignored" to some other type e.g. "text" if you want 
         unknown fields indexed and/or stored by default --> 
    <!--dynamicField name="*" type="ignored" /-->
-   <dynamicField name="attr_*" type="text"    indexed="true"  stored="true" termVectors="true"/>
+   <dynamicField name="attr_*" type="text"    indexed="true"  stored="true" multiValued="true" termVectors="true"/>
    <dynamicField name="m_*" type="string"    indexed="true"  stored="true" multiValued="true"/>
    <dynamicField name="xmp_*" type="string"    indexed="true"  stored="true" multiValued="true" termVectors="true" />
    <dynamicField name="sort_*" type="string"    indexed="true"  stored="false"/>
