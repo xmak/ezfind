@@ -98,12 +98,15 @@ class ezfModuleFunctionCollection
      * @param array Sort by parameters
      * @param mixed Content class ID or list of content class IDs
      * @param array list of subtree limitation node IDs
+     * @param boolean $enableElevation Controls whether elevation should be enabled or not
+     * @param boolean $forceElevation Controls whether elevation is forced. Applies when the srt criteria is NOT the default one ( 'score desc' ).
      *
      * @return array Search result
      */
     public function search( $query, $offset = 0, $limit = 10, $facets = null,
                             $filters = null, $sortBy = null, $classID = null, $sectionID = null,
-                            $subtreeArray = null, $asObjects = true, $spellCheck = null, $queryHandler = 'ezpublish' )
+                            $subtreeArray = null, $asObjects = true, $spellCheck = null, $queryHandler = 'ezpublish',
+                            $enableElevation = true, $forceElevation = false )
     {
         $solrSearch = new eZSolr();
         $params = array( 'SearchOffset' => $offset,
@@ -116,7 +119,9 @@ class ezfModuleFunctionCollection
                          'SearchSubTreeArray' => $subtreeArray,
                          'AsObjects' => $asObjects,
                          'SpellCheck' => $spellCheck,
-                         'QueryHandler' => $queryHandler );
+                         'QueryHandler' => $queryHandler,
+                         'EnableElevation' => $enableElevation,
+                         'ForceElevation' => $forceElevation );
         return array( 'result' => $solrSearch->search( $query, $params ) );
     }
 
@@ -176,7 +181,7 @@ class ezfModuleFunctionCollection
     /**
      * spellCheck function, see also the search integrated spell check
      *
-     * @param string contains the string/word 
+     * @param string contains the string/word
      * @param parameters all parameters for the request
      * @param realm the ini configured parameters grouped into a realm
      *

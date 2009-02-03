@@ -83,7 +83,15 @@ $FunctionList['search'] = array( 'name' => 'search',
                                                         array( 'name' => 'query_handler',
                                                                'type' => 'string',
                                                                'required' => false,
-                                                               'default' => null ) ) );
+                                                               'default' => null ),
+                                                        array( 'name' => 'enable_elevation',
+                                                               'type' => 'boolean',
+                                                               'required' => false,
+                                                               'default' => true ),
+                                                        array( 'name' => 'force_elevation',
+                                                               'type' => 'boolean',
+                                                               'required' => false,
+                                                               'default' => false ) ) );
 
 $FunctionList['facetParameters'] = array( 'name' => 'facetParameters',
                                           'operation_types' => 'read',
@@ -102,7 +110,7 @@ $FunctionList['filterParameters'] = array( 'name' => 'filterParameters',
                                            'parameters' => array( ) );
 
 
-//experimental, useful to query foreign Solr indexes    
+//experimental, useful to query foreign Solr indexes
 $FunctionList['rawSolrRequest'] = array( 'name' => 'rawSolrRequest',
                                          'operation_types' => 'read',
                                          'call_method' => array( 'class' => 'ezfModuleFunctionCollection',
@@ -171,5 +179,5 @@ $FunctionList['moreLikeThis'] = array( 'name' => 'moreLikeThis',
                                                                'type' => 'boolean',
                                                                'required' => false,
                                                                'default' => true ) ) );
-    
+
 ?>
