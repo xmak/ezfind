@@ -5,7 +5,7 @@ menuArray['eZFind']['elements'] = new Array();
 </script>
 
  <hr/>
-    <a id="menu-ezfind" class="more" href="#" onmouseover="ezpopmenu_showSubLevel( event, 'eZFind', 'menu-ezfind' ); return false;">{'eZFind'|i18n( 'extension/ezfind/popupmenu' )}</a>
+    <a id="menu-ezfind" class="more" href="#" onmouseover="ezpopmenu_showSubLevel( event, 'eZFind', 'menu-ezfind' ); return false;">{'eZ Find'|i18n( 'extension/ezfind/popupmenu' )}</a>
 
 {* Elevate object *}
 <form id="ezfind-menu-form-elevate" method="post" action={"/ezfind/elevate/"|ezurl}>

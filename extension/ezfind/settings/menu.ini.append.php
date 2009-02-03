@@ -8,8 +8,8 @@ Tabs[]=ezfind
 
 [Topmenu_ezfind]
 NavigationPartIdentifier=ezfindnavigationpart
-Name=eZFind
-Tooltip=eZFind dashboard
+Name=eZ Find
+Tooltip=eZ Find dashboard
 URL[]
 URL[default]=ezfind/elevate
 Enabled[]

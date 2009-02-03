@@ -5,4 +5,4 @@ menuArray['eZFind']['elements'] = new Array();
 </script>
 
  <hr/>
-    <a id="child-menu-ezfind" class="more" href="#" onmouseover="ezpopmenu_showSubLevel( event, 'eZFind', 'child-menu-ezfind' ); return false;">{'eZFind'|i18n( 'extension/ezfind/popupmenu' )}</a>
+    <a id="child-menu-ezfind" class="more" href="#" onmouseover="ezpopmenu_showSubLevel( event, 'eZFind', 'child-menu-ezfind' ); return false;">{'eZ Find'|i18n( 'extension/ezfind/popupmenu' )}</a>
