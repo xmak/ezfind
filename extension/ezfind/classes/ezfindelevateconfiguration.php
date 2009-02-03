@@ -383,6 +383,40 @@ class eZFindElevateConfiguration extends eZPersistentObject
         $solr = new eZSolr();
         $solr->commit();
     }
+
+    /**
+     * Generates a well-formed array of elevate-related query parameters.
+     *
+     * @param boolean $forceElevation Whether elevation should be forced or not. Parameter supported at runtime from Solr@rev:735117
+     *                Should be used when a sort array other than the default one ( 'score desc' ) is passed in the query parameters,
+     *                if one wants the elevate configuration to be actually taken into account.
+     *
+     * @param boolean $enableElevation Whether the Elevate functionnality should be used or not. Defaults to 'true'.
+     *
+     * @return array The well-formed query parameter regarding the elevate functionnality. Example :
+     *         <code>
+     *         array( 'forceElevation' => 'true',
+     *                'enableElevation' => 'true' )
+     *         </code>
+     */
+    public static function getRuntimeQueryParameters( $forceElevation = false, $enableElevation = true )
+    {
+        $retArray = array( 'forceElevation'  => 'false',
+                           'enableElevation' => 'true' );
+
+        if ( $enableElevation === false )
+        {
+            $retArray['enableElevation'] = 'false';
+            return $retArray;
+        }
+
+        if ( $forceElevation === true )
+        {
+            $retArray['forceElevation'] = 'true';
+        }
+
+        return $retArray;
+    }
 }
 // Initialize the static property containing <eZINI> solr.ini
 eZFindElevateConfiguration::$solrINI = eZINI::instance( 'solr.ini' );

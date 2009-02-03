@@ -51,9 +51,9 @@ class ezfeZPSolrQueryBuilder
      * build a multi field query, basically doing the same as a Lucene MultiField query
      * not always safe
      * @param string $searchText
-     * @param array $solrFields 
+     * @param array $solrFields
      * @param string $mode
-     * 
+     *
      */
     public function buildMultiFieldQuery( $searchText, $solrFields = array(), $mode = null )
     {
@@ -83,11 +83,16 @@ class ezfeZPSolrQueryBuilder
      *        'SearchContentClassID' => array( <class ID1>[, <class ID2>]... ),
      *        'SearchContentClassAttributeID' => <class attribute ID>,
      *        'Facet' => array( array( 'field' => <class identifier>/<attribute identifier>[/<option>], ... ) ) ),
-     *        'Filter' => array( <base_name> => <value>, <base_name2> => <value2> )
+     *        'Filter' => array( <base_name> => <value>, <base_name2> => <value2> ),
      *        'SortBy' => array( <field> => <asc|desc> [, <field2> => <asc|desc> [,...]] ) |
-                          array( array( <field> => <asc|desc> )[, array( <field2> => <asc|desc> )[,...]] )
+     *                    array( array( <field> => <asc|desc> )[, array( <field2> => <asc|desc> )[,...]] )
+     *        'ForceElevation' => false,
+     *        'EnableElevation' => true
+     *      )
      * </code>
      * For full facet description, see facets design document.
+     * For full description about 'ForceElevation', see elevate support design document ( elevate_support.rst.txt )
+     *
      * @param array Search types. Reserved.
      *
      * @return array Solr query results.
@@ -110,6 +115,8 @@ class ezfeZPSolrQueryBuilder
         $asObjects = isset( $params['AsObjects'] ) && $params['AsObjects'] ? $params['AsObjects'] : true;
         $spellCheck = isset( $params['SpellCheck'] ) && $params['SpellCheck'] > 0 ? $params['SpellCheck'] : array();
         $queryHandler = isset( $params['QueryHandler'] )  ?  $params['QueryHandler'] : self::$FindINI->variable( 'SearchHandler', 'DefaultSearchHandler' );
+        $forceElevation = isset( $params['ForceElevation'] )  ?  $params['ForceElevation'] : false;
+        $enableElevation = isset( $params['EnableElevation'] )  ?  $params['EnableElevation'] : true;
 
         $filterQuery = array();
 
@@ -204,6 +211,8 @@ class ezfeZPSolrQueryBuilder
                 'spellcheck.count' => 1);
         }
 
+        // Create the Elevate-related parameters here :
+        $elevateParamList = eZFindElevateConfiguration::getRuntimeQueryParameters( $forceElevation, $enableElevation );
 
         // process query handler: standard, simplestandard, ezpublish, heuristic
         // first determine which implemented handler to use when heuristic is specified
@@ -219,7 +228,7 @@ class ezfeZPSolrQueryBuilder
                 $queryHandler = 'ezpublish';
             }
         }
-        
+
         $handlerParameters = array();
 
         $queryHandler = strtolower( $queryHandler );
@@ -252,7 +261,7 @@ class ezfeZPSolrQueryBuilder
                 $handlerParameters = array ( 'q' => $searchText,
                                              'qf' => implode( ' ', $queryFields ),
                                              'qt' => $queryHandler );
-                                                              
+
         }
 
         $queryParams =  array_merge(
@@ -280,7 +289,8 @@ class ezfeZPSolrQueryBuilder
                 'hl.simple.post' => '</b>',
                 'wt' => 'php' ),
             $facetQueryParamList,
-            $spellCheckParamList );
+            $spellCheckParamList,
+            $elevateParamList );
         eZDebug::writeDebug( $queryParams, 'Final query parameters sent to Solr backend' );
         return $queryParams;
     }
@@ -521,11 +531,11 @@ class ezfeZPSolrQueryBuilder
      * @param array Parameter list array.
      *              The normal simple use is an array of type: array( '<field name>', <value> ).
      *              The value may also be an array containing values.
-     *      
+     *
      *              The value may be the <basename>:<value>, example: array( 'Filter' => array( 'car/make:audi' ) )
-     *              
+     *
      *              The value may also be a string, or range, example: [10 to *].
-     *              
+     *
      *
      * @return string Filter Query. Null if no filter parameters are in
      * the $parameterList
