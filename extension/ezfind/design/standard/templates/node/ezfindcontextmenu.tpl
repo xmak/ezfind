@@ -9,5 +9,5 @@ menuArray['eZFind']['elements'] = new Array();
 
 {* Elevate object *}
 <form id="ezfind-menu-form-elevate" method="post" action={"/ezfind/elevate/"|ezurl}>
-  <input type="hidden" name="ObjectID" value="%objectID%" />
+  <input type="hidden" name="ObjectIDFromMenu" value="%objectID%" />
 </form>
