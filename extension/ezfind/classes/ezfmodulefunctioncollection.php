@@ -178,6 +178,71 @@ class ezfModuleFunctionCollection
 
     }
 
+    /*
+     * Retrieves the Elevate configuration, optionnally filtered.
+     * @todo Add the sort_by, languageCode, searchQuery parameters
+     *
+     * @param boolean $countOnly If only the count of configuration elements shall be fetched, optionnally filtered.
+     * @param integer $offset Used to frame the fetch.
+     * @param integer $limit Used to frame the fetch.
+     * @param string $searchQuery Find elevate configurations for a given search query.
+     * @param string $languageCode Find elevate configurations for a given language.
+     *
+     * @see eZFindElevateConfiguration::fetchObjectsForQueryString
+     */
+    public function fetchElevateConfiguration( $countOnly = false, $offset = 0, $limit = 10, $searchQuery = null, $languageCode = null )
+    {
+        $conds = null;
+        $limit = array( 'offset' => $offset,
+                        'limit' => $limit );
+        $fieldFilters = null;
+        $custom = null;
+
+        // START polymorphic part
+        if ( $searchQuery !== null )
+        {
+            $results = eZFindElevateConfiguration::fetchObjectsForQueryString( $searchQuery, false, $languageCode, $limit, $countOnly );
+        }
+        else
+        {
+            if ( $countOnly )
+            {
+                $limit = null;
+                $fieldFilters = array();
+                $custom = array( array( 'operation' => 'count( * )',
+                                        'name' => 'count' ) );
+            }
+
+            if ( $languageCode )
+                $conds = array( 'language_code' => $languageCode );
+
+            $sorts = array( 'search_query' => 'asc' );
+            $results = eZPersistentObject::fetchObjectList( eZFindElevateConfiguration::definition(),
+                                                            $fieldFilters,
+                                                            $conds,
+                                                            $sorts,
+                                                            $limit,
+                                                            false,
+                                                            false,
+                                                            $custom );
+        }
+        // END polymorphic part
+
+        if ( $results === null )
+        {
+            // @ TODO : return a more explicit error code and info.
+            return array( 'error' => array( 'error_type' => 'extension/ezfind/elevate',
+                                            'error_code' => eZError::KERNEL_NOT_FOUND ) );
+        }
+        else
+        {
+            if ( $searchQuery === null and $countOnly )
+                return array( 'result' => $results[0]['count'] );
+
+            return array( 'result' => $results );
+        }
+    }
+
     /**
      * spellCheck function, see also the search integrated spell check
      *

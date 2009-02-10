@@ -37,11 +37,15 @@ $ViewList = array();
 $ViewList['elevate'] = array(
     'functions' => array( 'elevate' ),
     'default_navigation_part' => 'ezfindnavigationpart',
-    /*'ui_context' => 'administration',*/
+    'ui_context' => 'administration',
     'script' => 'elevate.php',
-    'params' => array() );
+    'params' => array(),
+    'unordered_params' => array( 'language'     => 'Language',
+                                 'offset'       => 'Offset',
+                                 'limit'        => 'Limit',
+                                 'search_query' => 'SearchQuery' )
+                            );
 
 $FunctionList = array();
 $FunctionList['elevate'] = array();
-
 ?>

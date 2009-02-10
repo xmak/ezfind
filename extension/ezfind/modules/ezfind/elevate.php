@@ -26,7 +26,7 @@
 //
 
 /**
- * File containing the elevate view of the eZFind module.
+ * File containing the elevate view of the ezfind module.
  *
  * @package eZFind
  */
@@ -38,7 +38,8 @@ $http = eZHTTPTool::instance();
 $tpl = templateInit();
 $feedback = array();
 $wildcard = eZFindElevateConfiguration::WILDCARD;
-
+$viewParameters = array();
+$availableTranslations = eZContentLanguage::fetchList();
 
 // Elevation was triggered from the javascript menu ( content structure menu OR subitems menu )
 if ( $http->hasPostVariable( 'ObjectIDFromMenu' ) and is_numeric( $http->postVariable( 'ObjectIDFromMenu' ) ) )
@@ -87,6 +88,7 @@ elseif( $http->hasPostVariable( 'ezfind-elevate-do') )
     $doStorage = true;
 
     // Check if we have all required data
+    // Validate ObjectID
     if ( !$http->hasPostVariable( 'elevateObjectID' ) or
          ( $elevatedObject = eZContentObject::fetch( $http->postVariable( 'elevateObjectID' ) ) ) === null
        )
@@ -100,6 +102,7 @@ elseif( $http->hasPostVariable( 'ezfind-elevate-do') )
         $tpl->setVariable( 'elevatedObject', $elevatedObject );
     }
 
+    // validate elevation string
     if ( !$http->hasPostVariable( 'ezfind-elevate-searchquery' ) or $http->postVariable( 'ezfind-elevate-searchquery' ) == '' )
     {
         $feedback['missing_searchquery'] = true;
@@ -110,12 +113,14 @@ elseif( $http->hasPostVariable( 'ezfind-elevate-do') )
         $tpl->setVariable( 'elevateSearchQuery', $http->postVariable( 'ezfind-elevate-searchquery' ) );
     }
 
+    // validate elevation language
     if ( !$http->hasPostVariable( 'ezfind-elevate-language' ) )
     {
         $feedback['missing_language'] = true;
         $doStorage = false;
     }
 
+    // Do storage, and create the associated feedback
     if ( $doStorage )
     {
         // Filter the not yet filtered fields
@@ -138,8 +143,63 @@ elseif( $http->hasPostVariable( 'ezfind-elevate-do') )
     }
 }
 
+// Searching for elevate configurations, directly from clicking the action button, or from previous results' pagination links ( Next, Previous, 1, 2, 3 ... )
+elseif( $http->hasPostVariable( 'ezfind-searchelevateconfigurations-do' ) or
+        $Params['SearchQuery'] !== false )
+{
+    // Check for search query first
+    if ( $http->hasPostVariable( 'ezfind-searchelevateconfigurations-searchquery' ) and
+         $http->postVariable( 'ezfind-searchelevateconfigurations-searchquery' ) != '' )
+    {
+        $searchQuery = htmlspecialchars( $http->postVariable( 'ezfind-searchelevateconfigurations-searchquery' ), ENT_QUOTES );
+        // Pass the search query on to the template, search will occur there.
+        $viewParameters = array_merge( $viewParameters, array( 'search_query' => $searchQuery ) );
+    }
+    elseif( $Params['SearchQuery'] != '' )
+    {
+        $searchQuery = htmlspecialchars( $Params['SearchQuery'], ENT_QUOTES );
+        // Pass the search query on to the template, search will occur there.
+        $viewParameters = array_merge( $viewParameters, array( 'search_query' => $searchQuery ) );
+    }
+    else
+    {
+        $feedback['missing_searchquery'] = true;
+    }
+
+    // Check language filter
+    $languageFilter = false;
+
+    if ( $http->hasPostVariable( 'ezfind-searchelevateconfigurations-language' ) )
+        $languageFilter = $http->postVariable( 'ezfind-searchelevateconfigurations-language' );
+    elseif ( $Params['Language'] !== false and $Params['Language'] != '' )
+        $languageFilter = $Params['Language'];
+
+    // Pass the language filter on to the template, search will occur there.
+    if ( $languageFilter and $languageFilter != $wildcard )
+        $viewParameters = array_merge( $viewParameters, array( 'language' => htmlspecialchars( $languageFilter, ENT_QUOTES ) ) );
+}
+
+// Synchronise Elevate configuration with Solr :
+elseif( $http->hasPostVariable( 'ezfind-elevate-synchronise' ) )
+{
+    if ( eZFindElevateConfiguration::synchronizeWithSolr() )
+    {
+        $feedback['synchronisation_ok'] = true;
+    }
+    else
+    {
+        $feedback['synchronisation_fail'] = true;
+        $feedback['synchronisation_fail_message'] = eZFindElevateConfiguration::$lastSynchronizationError;
+    }
+}
+
+$viewParameters = array_merge( $viewParameters, array( 'offset' => ( isset( $Params['Offset'] ) and is_numeric( $Params['Offset'] ) ) ? $Params['Offset'] : 0,
+                                                       'limit'  => $Params['Limit'] ) );
+$tpl->setVariable( 'view_parameters', $viewParameters );
 $tpl->setVariable( 'feedback', $feedback );
 $tpl->setVariable( 'language_wildcard', $wildcard );
+$tpl->setVariable( 'available_translations', $availableTranslations );
+
 
 $Result = array();
 $Result['content'] = $tpl->fetch( "design:ezfind/elevate.tpl" );

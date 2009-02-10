@@ -6,6 +6,6 @@
  *
  */
 
-var_dump( eZFindElevateConfiguration::synchroniseWithSolr() );
+var_dump( eZFindElevateConfiguration::synchronizeWithSolr() );
 
 ?>
