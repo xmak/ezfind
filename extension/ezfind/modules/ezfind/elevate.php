@@ -40,6 +40,7 @@ $feedback = array();
 $wildcard = eZFindElevateConfiguration::WILDCARD;
 $viewParameters = array();
 $availableTranslations = eZContentLanguage::fetchList();
+$thisUrl = '/ezfind/elevate';
 
 // Elevation was triggered from the javascript menu ( content structure menu OR subitems menu )
 if ( $http->hasPostVariable( 'ObjectIDFromMenu' ) and is_numeric( $http->postVariable( 'ObjectIDFromMenu' ) ) )
@@ -54,7 +55,7 @@ if ( $http->hasPostVariable( 'ObjectIDFromMenu' ) and is_numeric( $http->postVar
 // back from browse
 elseif(
     $http->hasPostVariable( 'BrowseActionName' ) and
-    $http->postVariable( 'BrowseActionName' ) == ( 'ezfind-elevate-browseforobject' ) and
+    ( $http->postVariable( 'BrowseActionName' ) == ( 'ezfind-elevate-browseforobject' ) or $http->postVariable( 'BrowseActionName' ) == ( 'ezfind-searchelevateconfigurations-browse' ) ) and
     $http->hasPostVariable( "SelectedNodeIDArray" )
       )
 {
@@ -64,18 +65,31 @@ elseif(
         $selectedNodeID = $selectedNodeID[0];
         $elevatedObject = eZContentObject::fetchByNodeID( $selectedNodeID );
 
-        $tpl->setVariable( 'back_from_browse', true );
-        $tpl->setVariable( 'elevatedObject', $elevatedObject );
-        $tpl->setVariable( 'elevateSearchQuery', $http->postVariable( 'elevateSearchQuery' ) );
+        // Browse was triggered to pick an object for elevation
+        if ( $http->postVariable( 'BrowseActionName' ) == ( 'ezfind-elevate-browseforobject' ) )
+        {
+            $tpl->setVariable( 'back_from_browse', true );
+            $tpl->setVariable( 'elevatedObject', $elevatedObject );
+            $tpl->setVariable( 'elevateSearchQuery', $http->postVariable( 'elevateSearchQuery' ) );
+        }
+        else
+        {
+            // Browsing for an object, the elevate configuration of which we would like to inspect.
+            $objectID = $elevatedObject->attribute( 'id' );
+            // Redirect the to detail page for the object's elevation configuration
+            $module->redirectToView( 'elevation_detail', array( $objectID ) );
+        }
     }
 }
 
-// From elevate's landing page, trigger browsing for an object to elevate.
-elseif ( $http->hasPostVariable( 'ezfind-elevate-browseforobject' ) )
+// From elevate's landing page, trigger browsing for an object to elevate, or to search elevation for
+elseif ( $http->hasPostVariable( 'ezfind-elevate-browseforobject' ) or
+         $http->hasPostVariable( 'ezfind-searchelevateconfigurations-browse' ) )
 {
+    $actionName = $http->hasPostVariable( 'ezfind-elevate-browseforobject' ) ? 'ezfind-elevate-browseforobject' : 'ezfind-searchelevateconfigurations-browse';
     $elevateSearchQuery =  $http->hasPostVariable( 'ezfind-elevate-searchquery' ) ? $http->postVariable( 'ezfind-elevate-searchquery' ): '';
     $browseType = 'SelectObjectRelationNode';
-    eZContentBrowse::browse( array( 'action_name' => 'ezfind-elevate-browseforobject',
+    eZContentBrowse::browse( array( 'action_name' => $actionName,
                                     'type' =>  $browseType,
                                     'from_page' => $module->currentRedirectionURI(),
                                     'persistent_data' => array( 'elevateSearchQuery' => $elevateSearchQuery ) ),
@@ -135,6 +149,14 @@ elseif( $http->hasPostVariable( 'ezfind-elevate-do') )
         {
             $feedback['creation_ok'] = $conf;
             $tpl->resetVariables();
+
+            // redirect to the original page if any.
+            // Useful to not duplicate storage code and input validation : the storage form can be submitted from another place.
+            //    Pseudo-code example:   redirectURI='/ezfind/elevation_detail/86'
+            if ( $http->hasPostVariable( 'redirectURI' ) )
+            {
+                $module->redirectTo( $http->postVariable( 'redirectURI' ) );
+            }
         }
         else
             $feedback['creation_error'] = array( 'elevatedObject' => $elevatedObject,
@@ -177,6 +199,19 @@ elseif( $http->hasPostVariable( 'ezfind-searchelevateconfigurations-do' ) or
     // Pass the language filter on to the template, search will occur there.
     if ( $languageFilter and $languageFilter != $wildcard )
         $viewParameters = array_merge( $viewParameters, array( 'language' => htmlspecialchars( $languageFilter, ENT_QUOTES ) ) );
+
+
+    // Check fuzzy filter
+    $fuzzyFilter = false;
+
+    if ( $http->hasPostVariable( 'ezfind-searchelevateconfigurations-fuzzy' ) )
+        $fuzzyFilter = true;
+    elseif ( $Params['FuzzyFilter'] !== false )
+        $fuzzyFilter = true;
+
+    // Pass the fuzzy filter on to the template, search will occur there.
+    if ( $fuzzyFilter )
+        $viewParameters = array_merge( $viewParameters, array( 'fuzzy_filter' => $fuzzyFilter ) );
 }
 
 // Synchronise Elevate configuration with Solr :
@@ -193,20 +228,19 @@ elseif( $http->hasPostVariable( 'ezfind-elevate-synchronise' ) )
     }
 }
 
-$viewParameters = array_merge( $viewParameters, array( 'offset' => ( isset( $Params['Offset'] ) and is_numeric( $Params['Offset'] ) ) ? $Params['Offset'] : 0,
-                                                       'limit'  => $Params['Limit'] ) );
+$viewParameters = array_merge( $viewParameters, array( 'offset' => ( isset( $Params['Offset'] ) and is_numeric( $Params['Offset'] ) ) ? $Params['Offset'] : 0 ) );
 $tpl->setVariable( 'view_parameters', $viewParameters );
 $tpl->setVariable( 'feedback', $feedback );
 $tpl->setVariable( 'language_wildcard', $wildcard );
 $tpl->setVariable( 'available_translations', $availableTranslations );
-
+$tpl->setVariable( 'baseurl', $thisUrl );
 
 $Result = array();
 $Result['content'] = $tpl->fetch( "design:ezfind/elevate.tpl" );
+$Result['left_menu'] = "design:ezfind/backoffice_left_menu.tpl";
 $Result['path'] = array( array( 'url' => false,
                                 'text' => ezi18n( 'extension/ezfind', 'eZFind' ) ),
                          array( 'url' => false,
                                 'text' => ezi18n( 'extension/ezfind', 'Elevation' ) ) );
 
-$Result['left_menu'] = "design:ezfind/backoffice_left_menu.tpl";
 ?>

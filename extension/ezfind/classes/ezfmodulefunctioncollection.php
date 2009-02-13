@@ -185,7 +185,7 @@ class ezfModuleFunctionCollection
      * @param boolean $countOnly If only the count of configuration elements shall be fetched, optionnally filtered.
      * @param integer $offset Used to frame the fetch.
      * @param integer $limit Used to frame the fetch.
-     * @param string $searchQuery Find elevate configurations for a given search query.
+     * @param string $searchQuery Find elevate configurations for a given search query, with or without fuzzy search.
      * @param string $languageCode Find elevate configurations for a given language.
      *
      * @see eZFindElevateConfiguration::fetchObjectsForQueryString
@@ -230,7 +230,7 @@ class ezfModuleFunctionCollection
 
         if ( $results === null )
         {
-            // @ TODO : return a more explicit error code and info.
+            // @TODO : return a more explicit error code and info.
             return array( 'error' => array( 'error_type' => 'extension/ezfind/elevate',
                                             'error_code' => eZError::KERNEL_NOT_FOUND ) );
         }

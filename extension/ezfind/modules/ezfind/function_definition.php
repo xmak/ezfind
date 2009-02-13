@@ -199,7 +199,7 @@ $FunctionList['elevateConfiguration'] = array(   'name' => 'elevateConfiguration
                                                                                'required' => false,
                                                                                'default' => 10 ),
                                                                         array( 'name' => 'searchQuery',
-                                                                               'type' => 'string',
+                                                                               'type' => 'mixed',
                                                                                'required' => false,
                                                                                'default' => null ),
                                                                         array( 'name' => 'languageCode',

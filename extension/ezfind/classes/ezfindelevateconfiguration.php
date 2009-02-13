@@ -119,64 +119,142 @@ class eZFindElevateConfiguration extends eZPersistentObject
     }
 
     /**
-     * Retrieves the query strings triggering elevation for a given content object, possibly per language.
+     * Retrieves the elevate configuration for a given content object, possibly per language.
      *
      * @param int $objectID ID of the content object to fetch elevate configuration for
-     * @param string $languageCode if filtering on language-code is required
-     * @return mixed An array containing the query strings elevating the object, optionnally sorted by language code, null if error.
-     */
-    public static function fetchQueryStringsForObject( $objectID, $groupByLanguage = true, $languageCode = null )
-    {
-        if ( ! is_numeric( $objectID ) )
-            return null;
-
-        $queryStrings = array();
-        $sortClause = $groupByLanguage ? array( 'language_code' => 'asc' ) : null;
-
-        $conds = array( 'contentobject_id' => $objectID );
-        if ( $languageCode and $languageCode !== '' )
-            $conds['language_code'] = array( array( $languageCode, self::WILDCARD ) );
-
-        $rows = parent::fetchObjectList( self::definition(), null, $conds, $sortClause, null, false );
-
-        foreach( $rows as $row )
-        {
-            if ( $groupByLanguage )
-            {
-                $queryStrings[$row['language_code']][] = $row['search_query'];
-            }
-            else
-            {
-                $queryStrings[] = $row['search_query'];
-            }
-        }
-
-        return $queryStrings;
-    }
-
-    /**
-     * Retrieves the content objects elevated by a given query string, possibly per language.
+     * @param boolean $groupByLanguage Group results per language. If true, the return value will look like the following :
+     * <code>
+     *     array( 'eng-GB' => array( ( eZFindElevateConfiguration ) $conf1,
+     *                               ( eZFindElevateConfiguration ) $conf2 ),
+     *            'fre-FR' => array( ( eZFindElevateConfiguration ) $conf3 ),
+     *            '*'      => array( ( eZFindElevateConfiguration ) $conf4 ),
+     *                               ( eZFindElevateConfiguration ) $conf5
+     *          )
+     * </code>
      *
-     * @param string $queryString query string for which elevate configuration is retrieved
      * @param string $languageCode if filtering on language-code is required
      * @param array $limit Associative array containing the 'offset' and 'limit' keys, with integers as values, framing the result set. Example :
      * <code>
      *     array( 'offset' => 0,
      *            'limit'  => 10 )
      * </code>
+     *
+     * @param boolean $countOnly If only the count of matching results is needed
+     * @param mixed $searchQuery Can be a string containing the search_query to filter on.
+     *                           Can also be an array looking like the following, supporting fuzzy search optionnally.
+     * <code>
+     *    array( 'searchQuery' => ( string )  'foo bar',
+     *           'fuzzy'       => ( boolean ) true      )
+     * </code>
+     *
+     * @return mixed An array containing the eZFindElevateConfiguration objects, optionnally sorted by language code, null if error.
+     */
+    public static function fetchConfigurationForObject( $objectID,
+                                                        $groupByLanguage = true,
+                                                        $languageCode = null,
+                                                        $limit = null,
+                                                        $countOnly = false,
+                                                        $searchQuery = null )
+    {
+        if ( ! is_numeric( $objectID ) )
+            return null;
+
+        $fieldFilters = $custom = null;
+        $asObject = true;
+        $results = array();
+        $sortClause = $groupByLanguage ? array( 'language_code' => 'asc' ) : null;
+
+        if ( $countOnly )
+        {
+            $limit = null;
+            $asObject = false;
+            $fieldFilters = array();
+            $custom = array( array( 'operation' => 'count( * )',
+                                    'name' => 'count' ) );
+        }
+
+        $conds = array( 'contentobject_id' => $objectID );
+        if ( $languageCode and $languageCode !== '' )
+            $conds['language_code'] = array( array( $languageCode, self::WILDCARD ) );
+
+        if ( $searchQuery )
+        {
+            if ( !is_array( $searchQuery ) and $searchQuery != '' )
+            {
+                $conds['search_query'] = $searchQuery;
+            }
+            elseif ( array_key_exists( 'searchQuery', $searchQuery ) and $searchQuery['searchQuery'] != '' )
+            {
+                $conds['search_query'] = $searchQuery['fuzzy'] === true ? array( 'like', "%{$searchQuery['searchQuery']}%" ) : $searchQuery['searchQuery'];
+            }
+        }
+
+        $rows = parent::fetchObjectList( self::definition(), $fieldFilters, $conds, $sortClause, $limit, $asObject, false, $custom );
+
+        if ( $countOnly )
+        {
+            return $rows[0]['count'];
+        }
+        else
+        {
+            foreach( $rows as $row )
+            {
+                if ( $groupByLanguage )
+                {
+                    $results[$row->attribute( 'language_code' )][] = $row;
+                }
+                else
+                {
+                    $results[] = $row;
+                }
+            }
+            return $results;
+        }
+    }
+
+    /**
+     * Retrieves the content objects elevated by a given query string, possibly per language.
+     *
+     * @param mixed $searchQuery Can be a string containing the search_query to filter on.
+     *                           Can also be an array looking like the following, supporting fuzzy search optionnally.
+     * <code>
+     *    array( 'searchQuery' => ( string )  'foo bar',
+     *           'fuzzy'       => ( boolean ) true      )
+     * </code>
+     *
+     * @param string $languageCode if filtering on language-code is required
+     * @param array $limit Associative array containing the 'offset' and 'limit' keys, with integers as values, framing the result set. Example :
+     * <code>
+     *     array( 'offset' => 0,
+     *            'limit'  => 10 )
+     * </code>
+     *
+     * @param boolean $countOnly If only the count of matching results is needed
      * @return mixed An array containing the content objects elevated by the query string, optionnally sorted by language code, null if error. If $countOnly is true,
      *               only the result count is returned.
      */
     public static function fetchObjectsForQueryString( $queryString, $groupByLanguage = true, $languageCode = null, $limit = null, $countOnly = false )
     {
-        if ( $queryString === '' )
+        if ( ( is_string( $queryString ) and $queryString === '' ) or
+             ( array_key_exists( 'searchQuery', $queryString ) and $queryString['searchQuery'] == '' )
+           )
+        {
             return null;
+        }
 
         $fieldFilters = $custom = null;
         $objects = array();
         $sortClause = $groupByLanguage ? array( 'language_code' => 'asc' ) : null;
 
-        $conds = array( 'search_query' => $queryString );
+        if ( !is_array( $queryString ) )
+        {
+            $conds['search_query'] = $queryString;
+        }
+        else
+        {
+            $conds['search_query'] = @$queryString['fuzzy'] === true ? array( 'like', "%{$queryString['searchQuery']}%" ) : $queryString['searchQuery'];
+        }
+
         if ( $languageCode and $languageCode !== '' )
             $conds['language_code'] = array( array( $languageCode, self::WILDCARD ) );
 

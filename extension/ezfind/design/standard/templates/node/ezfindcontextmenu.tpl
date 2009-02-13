@@ -11,3 +11,8 @@ menuArray['eZFind']['elements'] = new Array();
 <form id="ezfind-menu-form-elevate" method="post" action={"/ezfind/elevate/"|ezurl}>
   <input type="hidden" name="ObjectIDFromMenu" value="%objectID%" />
 </form>
+
+{* Elevation detail for object *}
+<form id="ezfind-menu-form-elevation-detail" method="post" action={"/ezfind/elevation_detail/"|ezurl}>
+  <input type="hidden" name="ObjectID" value="%objectID%" />
+</form>
