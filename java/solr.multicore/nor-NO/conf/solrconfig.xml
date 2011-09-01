@@ -47,7 +47,7 @@
        that you fully re-index after changing this setting as it can
        affect both how text is indexed and queried.
     -->
-  <luceneMatchVersion>LUCENE_31</luceneMatchVersion>
+  <luceneMatchVersion>LUCENE_33</luceneMatchVersion>
 
   <!-- lib directives can be used to instruct Solr to load an Jars
        identified and use them to resolve any "plugins" specified in
@@ -79,8 +79,8 @@
   <!-- If a dir option (with or without a regex) is used and nothing
        is found that matches, it will be ignored
     -->
-  <!-- <lib dir="../../contrib/clustering/lib/" /> -->
-  <!-- <lib dir="/total/crap/dir/ignored" />  -->
+  <lib dir="../../contrib/clustering/lib/" />
+  <lib dir="/total/crap/dir/ignored" />
   <!-- an exact path can be used to specify a specific file.  This
        will cause a serious error to be logged if it can't be loaded.
     -->
@@ -97,6 +97,7 @@
     -->
   <!-- bd@ez.no the default value is okay here since it matches coreX/data -->
   <!-- <dataDir>${solr.data.dir:./solr/data}</dataDir> -->
+
 
 
   <!-- The DirectoryFactory to use for indexes.
@@ -135,21 +136,23 @@
     <writeLockTimeout>1000</writeLockTimeout>
     <commitLockTimeout>10000</commitLockTimeout>
 
-    <!-- Expert: Merge Policy
+    <!-- Expert: Merge Policy 
 
          The Merge Policy in Lucene controls how merging is handled by
-         Lucene.  The default in 2.3 is the LogByteSizeMergePolicy,
+         Lucene.  The default in Solr 3.3 is TieredMergePolicy.
+         
+         The default in 2.3 was the LogByteSizeMergePolicy,
          previous versions used LogDocMergePolicy.
-
+         
          LogByteSizeMergePolicy chooses segments to merge based on
          their size.  The Lucene 2.2 default, LogDocMergePolicy chose
          when to merge based on number of documents
-
+         
          Other implementations of MergePolicy must have a no-argument
          constructor
       -->
     <!--
-       <mergePolicy class="org.apache.lucene.index.LogByteSizeMergePolicy"/>
+       <mergePolicy class="org.apache.lucene.index.TieredMergePolicy"/>
        -->
 
     <!-- Expert: Merge Scheduler
@@ -303,7 +306,7 @@
 
     <!-- Update Related Event Listeners
 
-         Various IndexWriter realted events can trigger Listeners to
+         Various IndexWriter related events can trigger Listeners to
          take actions.
 
          postCommit - fired after every commit or optimize command
@@ -386,7 +389,8 @@
          be based on the last SolrCore to be initialized.
 
       -->
-    <maxBooleanClauses>10000</maxBooleanClauses>
+    <maxBooleanClauses>1024</maxBooleanClauses>
+
 
     <!-- Solr Internal Query Caches
 
@@ -498,7 +502,7 @@
         that.
 
         For most situations, this will not be useful unless you
-        frequently get the same search repeatedly with differnet sort
+        frequently get the same search repeatedly with different sort
         options, and none of them ever use "score"
      -->
    <!--
@@ -514,7 +518,7 @@
         then documents 0 through 49 will be collected and cached.  Any further
         requests in that range can be satisfied via the cache.
      -->
-    <queryResultWindowSize>50</queryResultWindowSize>
+   <queryResultWindowSize>20</queryResultWindowSize>
 
    <!-- Maximum number of documents to cache for any entry in the
         queryResultCache.
@@ -588,7 +592,7 @@
 
        handleSelect="true" will cause the SolrDispatchFilter to process
        the request and will result in consistent error handling and
-       formating for all types of requests.
+       formatting for all types of requests.
 
        handleSelect="false" will cause the SolrDispatchFilter to
        ignore "/select" requests and fallback to using the legacy
@@ -602,10 +606,10 @@
          those requests
 
          enableRemoteStreaming - enables use of the stream.file
-         and stream.url paramaters for specifying remote streams.
+         and stream.url parameters for specifying remote streams.
 
          multipartUploadLimitInKB - specifies the max size of
-         Multipart File Uploads that Solr will alow in a Request.
+         Multipart File Uploads that Solr will allow in a Request.
 
          *** WARNING ***
          The settings below authorize Solr to fetch remote files, You
@@ -638,7 +642,7 @@
          <cacheControl>max-age=30, public</cacheControl>
        </httpCaching>
       -->
-    <!-- To enable Solr to responde with automaticly generated HTTP
+    <!-- To enable Solr to respond with automatically generated HTTP
          Caching headers, and to response to Cache Validation requests
          correctly, set the value of never304="false"
 
@@ -652,12 +656,12 @@
          Last-Modified value (and validation against If-Modified-Since
          requests) will all be relative to when the current Searcher
          was opened.  You can change it to lastModFrom="dirLastMod" if
-         you want the value to exactly corrispond to when the physical
+         you want the value to exactly correspond to when the physical
          index was last modified.
 
          etagSeed="..." is an option you can change to force the ETag
          header (and validation against If-None-Match requests) to be
-         differnet even if the index has not changed (ie: when making
+         different even if the index has not changed (ie: when making
          significant changes to your config file)
 
          (lastModifiedFrom and etagSeed are both ignored if you use
@@ -782,7 +786,7 @@
        This example SearchHandler declaration shows off usage of the
        SearchHandler with many defaults declared
 
-       Note that multiple instances of hte same Request Handler
+       Note that multiple instances of the same Request Handler
        (SearchHandler) can be registered multiple times with different
        names (and different init parameters)
     -->
@@ -864,7 +868,7 @@
       -->
     <!--
        <lst name="defaults">
-         <str name="update.processor">dedupe</str>
+         <str name="update.chain">dedupe</str>
        </lst>
        -->
     </requestHandler>
@@ -1048,12 +1052,12 @@
        </docs>
 
     Note: Each document must contain a field which serves as the
-    unique key. This key is used in the returned response to assoicate
-    ananalysis breakdown to the analyzed document.
+    unique key. This key is used in the returned response to associate
+    an analysis breakdown to the analyzed document.
 
     Like the FieldAnalysisRequestHandler, this handler also supports
     query analysis by sending either an "analysis.query" or "q"
-    request paraemter that holds the query text to be analyized. It
+    request parameter that holds the query text to be analyzed. It
     also supports the "analysis.showmatch" parameter which when set to
     true, all field tokens that match the query tokens will be marked
     as a "match".
@@ -1069,7 +1073,7 @@
     -->
   <requestHandler name="/admin/"
                   class="solr.admin.AdminHandlers" />
-  <!-- This single handler is equivilent to the following... -->
+  <!-- This single handler is equivalent to the following... -->
   <!--
      <requestHandler name="/admin/luke"       class="solr.admin.LukeRequestHandler" />
      <requestHandler name="/admin/system"     class="solr.admin.SystemInfoHandler" />
@@ -1173,7 +1177,7 @@
        Search components are registered to SolrCore and used by
        instances of SearchHandler (which can access them by name)
 
-       By default, the following components are avaliable:
+       By default, the following components are available:
 
        <searchComponent name="query"     class="solr.QueryComponent" />
        <searchComponent name="facet"     class="solr.FacetComponent" />
@@ -1234,6 +1238,9 @@
       <str name="field">ezf_sp_words</str>
       <str name="spellcheckIndexDir">./ezfspellchecker</str>
       <str name="buildOnOptimize">true</str>
+      <!-- uncomment this to require terms to occur in 1% of the documents in order to be included in the dictionary
+      	<float name="thresholdTokenFrequency">.01</float>
+      -->
     </lst>
 
     <!-- a spellchecker that uses a different distance measure -->
@@ -1348,11 +1355,13 @@
 
            * org.carrot2.clustering.lingo.LingoClusteringAlgorithm
            * org.carrot2.clustering.stc.STCClusteringAlgorithm
+           * org.carrot2.clustering.kmeans.BisectingKMeansClusteringAlgorithm
 
            See http://project.carrot2.org/algorithms.html for the
            algorithm's characteristics.
         -->
       <str name="carrot.algorithm">org.carrot2.clustering.lingo.LingoClusteringAlgorithm</str>
+
       <!-- Overriding values for Carrot2 default algorithm attributes.
 
            For a description of all available attributes, see:
@@ -1363,9 +1372,22 @@
            name and attribute value as parameter value.
         -->
       <str name="LingoClusteringAlgorithm.desiredClusterCountBase">20</str>
+      
+      <!-- Location of Carrot2 lexical resources.
+
+           A directory from which to load Carrot2-specific stop words
+           and stop labels. Absolute or relative to Solr config directory.
+           If a specific resource (e.g. stopwords.en) is present in the
+           specified dir, it will completely override the corresponding
+           default one that ships with Carrot2.
+
+           For an overview of Carrot2 lexical resources, see:
+           http://download.carrot2.org/head/manual/#chapter.lexical-resources
+        -->
+      <str name="carrot.lexicalResourcesDir">clustering/carrot2</str>
 
       <!-- The language to assume for the documents.
-
+           
            For a list of allowed values, see:
            http://download.carrot2.org/stable/manual/#section.attribute.lingo.MultilingualClustering.defaultLanguage
        -->
